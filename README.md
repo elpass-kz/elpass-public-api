@@ -24,7 +24,7 @@ This guide explains how to integrate your apartment management application with 
 
 - JWT authentication token (provided by Elpass support)
 - Your apartment service provider identifier (used for `group` naming)
-- Base API URL: `https://api.elpass.io` (or development: `http://localhost:3000`)
+- Base API URL: `https://api.elpass.kz` (or development: `http://localhost:3000`)
 
 ### API Endpoint
 
@@ -34,11 +34,11 @@ The API backend is built with **PostgREST**, which provides a RESTful interface 
 
 Example:
 ```
-POST   https://api.elpass.io/el_tcards          # Create card
-GET    https://api.elpass.io/el_tcards          # List cards
-GET    https://api.elpass.io/el_tcards?...      # Filter cards
-PATCH  https://api.elpass.io/el_tcards?no=eq.{uuid}  # Update card
-DELETE https://api.elpass.io/el_tcards?no=eq.{uuid}  # Delete card
+POST   https://api.elpass.kz/el_tcards          # Create card
+GET    https://api.elpass.kz/el_tcards          # List cards
+GET    https://api.elpass.kz/el_tcards?...      # Filter cards
+PATCH  https://api.elpass.kz/el_tcards?no=eq.{uuid}  # Update card
+DELETE https://api.elpass.kz/el_tcards?no=eq.{uuid}  # Delete card
 ```
 
 ---
@@ -56,7 +56,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 **cURL**:
 ```bash
-curl -H "Authorization: Bearer YOUR_TOKEN" https://api.elpass.io/el_tcards
+curl -H "Authorization: Bearer YOUR_TOKEN" https://api.elpass.kz/el_tcards
 ```
 
 **Python (requests)**:
@@ -67,7 +67,7 @@ headers = {
     "Authorization": f"Bearer {your_token}",
     "Content-Type": "application/json"
 }
-response = requests.get("https://api.elpass.io/el_tcards", headers=headers)
+response = requests.get("https://api.elpass.kz/el_tcards", headers=headers)
 ```
 
 **Node.js (fetch)**:
@@ -76,7 +76,7 @@ const headers = {
     'Authorization': `Bearer ${yourToken}`,
     'Content-Type': 'application/json'
 };
-fetch('https://api.elpass.io/el_tcards', { headers })
+fetch('https://api.elpass.kz/el_tcards', { headers })
 ```
 
 ---
@@ -220,7 +220,7 @@ with open('resident_photo.jpg', 'rb') as f:
 When a resident moves in and needs access card:
 
 ```bash
-curl -X POST https://api.elpass.io/el_tcards \
+curl -X POST https://api.elpass.kz/el_tcards \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -d '{
@@ -240,7 +240,7 @@ curl -X POST https://api.elpass.io/el_tcards \
 When resident changes name or photo:
 
 ```bash
-curl -X PATCH "https://api.elpass.io/el_tcards?no=eq.550e8400-e29b-41d4-a716-446655440000" \
+curl -X PATCH "https://api.elpass.kz/el_tcards?no=eq.550e8400-e29b-41d4-a716-446655440000" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -d '{
@@ -254,7 +254,7 @@ curl -X PATCH "https://api.elpass.io/el_tcards?no=eq.550e8400-e29b-41d4-a716-446
 When resident renews lease:
 
 ```bash
-curl -X PATCH "https://api.elpass.io/el_tcards?no=eq.550e8400-e29b-41d4-a716-446655440000" \
+curl -X PATCH "https://api.elpass.kz/el_tcards?no=eq.550e8400-e29b-41d4-a716-446655440000" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -d '{
@@ -267,7 +267,7 @@ curl -X PATCH "https://api.elpass.io/el_tcards?no=eq.550e8400-e29b-41d4-a716-446
 When rent is unpaid or access needs suspension:
 
 ```bash
-curl -X PATCH "https://api.elpass.io/el_tcards?no=eq.550e8400-e29b-41d4-a716-446655440000" \
+curl -X PATCH "https://api.elpass.kz/el_tcards?no=eq.550e8400-e29b-41d4-a716-446655440000" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -d '{
@@ -282,7 +282,7 @@ curl -X PATCH "https://api.elpass.io/el_tcards?no=eq.550e8400-e29b-41d4-a716-446
 When resident moves out:
 
 ```bash
-curl -X DELETE "https://api.elpass.io/el_tcards?no=eq.550e8400-e29b-41d4-a716-446655440000" \
+curl -X DELETE "https://api.elpass.kz/el_tcards?no=eq.550e8400-e29b-41d4-a716-446655440000" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
@@ -293,7 +293,7 @@ curl -X DELETE "https://api.elpass.io/el_tcards?no=eq.550e8400-e29b-41d4-a716-44
 Get all cards for a specific apartment:
 
 ```bash
-curl -X GET "https://api.elpass.io/el_tcards?group=eq.SITE001%2BA101" \
+curl -X GET "https://api.elpass.kz/el_tcards?group=eq.SITE001%2BA101" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
@@ -302,7 +302,7 @@ curl -X GET "https://api.elpass.io/el_tcards?group=eq.SITE001%2BA101" \
 Find cards that need renewal:
 
 ```bash
-curl -X GET "https://api.elpass.io/el_tcards?end_at=lt.2025-02-01T00:00:00Z&order=end_at.asc" \
+curl -X GET "https://api.elpass.kz/el_tcards?end_at=lt.2025-02-01T00:00:00Z&order=end_at.asc" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
@@ -339,7 +339,7 @@ headers = {
 
 for resident in residents:
     response = requests.post(
-        "https://api.elpass.io/el_tcards",
+        "https://api.elpass.kz/el_tcards",
         headers=headers,
         json=resident
     )
@@ -569,7 +569,7 @@ class ElpassCardManager:
 
 # Usage example
 manager = ElpassCardManager(
-    api_url="https://api.elpass.io",
+    api_url="https://api.elpass.kz",
     token="YOUR_JWT_TOKEN"
 )
 
