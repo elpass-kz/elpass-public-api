@@ -50,13 +50,13 @@ info:
     name: Proprietary
 
 servers:
-  - url: https://api.elpass.io
+  - url: https://terminals.yandex.elpass.kz/api
     description: Production PostgREST API
   - url: http://localhost:3000
     description: Development PostgREST API
 
 paths:
-  /el_tcards:
+  /cards:
     post:
       summary: Create a new access card
       description: |
@@ -567,6 +567,6 @@ tags:
   - name: Card Management
     description: |
       CRUD operations for access cards.
-      
+
       All requests require valid JWT authentication.
-      The table name is `el_tcards`.
+      The endpoint is `/cards`.
