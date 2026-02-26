@@ -10,11 +10,10 @@ This guide explains how to integrate your apartment management application with 
 
 1. [Getting Started](#getting-started)
 2. [Authentication](#authentication)
-3. [Card Group Naming Convention](#card-group-naming-convention)
-4. [Card Data Model](#card-data-model)
-5. [Common Integration Scenarios](#common-integration-scenarios)
-6. [Error Handling](#error-handling)
-7. [FAQ](#faq)
+3. [Card Data Model](#card-data-model)
+4. [Common Integration Scenarios](#common-integration-scenarios)
+5. [Error Handling](#error-handling)
+6. [FAQ](#faq)
 
 ---
 
@@ -82,53 +81,6 @@ const headers = {
 };
 fetch("https://api.elpass.kz/api/cards", { headers });
 ```
-
----
-
-## Card Group Naming Convention
-
-The **`group`** field is used to organize cards by physical location and assign access permissions.
-
-### Format
-
-```
-{SITE_ID}+{APARTMENT_NUMBER}
-```
-
-### Components
-
-- **SITE_ID**: Unique identifier for your property/complex (uppercase, alphanumeric + underscore/hyphen)
-- **+**: Literal plus sign separator (required)
-- **APARTMENT_NUMBER**: Unit/apartment identifier (alphanumeric + underscore/hyphen)
-
-### Examples
-
-```
-SITE001+A101                    # Site 1, Apartment A101
-BUILDING_A+202                  # Building A, Unit 202
-COMPLEX_1+UNIT_501              # Complex 1, Unit 501
-MY_PROPERTY_KZ+FLAT_1205        # Your property, Flat 1205
-```
-
-### Important Rules
-
-1. ✅ Must contain exactly one `+` separator
-2. ✅ Both parts must be non-empty
-3. ✅ Allowed characters: `a-z`, `A-Z`, `0-9`, `_`, `-`
-4. ❌ No spaces, special characters, or multiple `+` signs
-5. ❌ Must be a valid pattern: `^[a-zA-Z0-9_-]+\+[a-zA-Z0-9_-]+$`
-
-### Recommended Format
-
-```
-{PROVIDER_CODE}_{PROPERTY_ID}+{APARTMENT_ID}
-```
-
-Example: If your company code is `APT` and you manage property `PROP001`:
-
-- `APT_PROP001+A101`
-- `APT_PROP001+A102`
-- `APT_PROP001+B201`
 
 ---
 
