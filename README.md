@@ -23,21 +23,21 @@ This guide explains how to integrate your apartment management application with 
 
 - JWT authentication token (provided by Elpass support)
 - Your apartment service provider identifier (used for `group` naming)
-- Base API URL: `https://api.elpass.kz/api/cards`
+- Base API URL: `https://api.elpass.uz/api/cards`
 
 ### API Endpoint
 
 The API backend is built with **Express.js + TypeScript**, which provides a RESTful interface with automatic synchronization to physical access control terminals (Hikvision/Dahua).
 
-**Base Endpoint**: `https://api.elpass.kz/api/cards`
+**Base Endpoint**: `https://api.elpass.uz/api/cards`
 
 Example:
 
 ```
-POST   https://api.elpass.kz/api/cards          # Create card
-GET    https://api.elpass.kz/api/cards          # List cards
-PATCH  https://api.elpass.kz/api/cards/:uuid  # Update card
-DELETE https://api.elpass.kz/api/cards/:uuid  # Delete card
+POST   https://api.elpass.uz/api/cards          # Create card
+GET    https://api.elpass.uz/api/cards          # List cards
+PATCH  https://api.elpass.uz/api/cards/:uuid  # Update card
+DELETE https://api.elpass.uz/api/cards/:uuid  # Delete card
 ```
 
 ---
@@ -57,7 +57,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **cURL**:
 
 ```bash
-curl -H "Authorization: Bearer YOUR_TOKEN" https://api.elpass.kz/api/cards
+curl -H "Authorization: Bearer YOUR_TOKEN" https://api.elpass.uz/api/cards
 ```
 
 **Python (requests)**:
@@ -69,7 +69,7 @@ headers = {
     "Authorization": f"Bearer {your_token}",
     "Content-Type": "application/json"
 }
-response = requests.get("https://api.elpass.kz/api/cards", headers=headers)
+response = requests.get("https://api.elpass.uz/api/cards", headers=headers)
 ```
 
 **Node.js (fetch)**:
@@ -79,7 +79,7 @@ const headers = {
   Authorization: `Bearer ${yourToken}`,
   "Content-Type": "application/json",
 };
-fetch("https://api.elpass.kz/api/cards", { headers });
+fetch("https://api.elpass.uz/api/cards", { headers });
 ```
 
 ---
@@ -215,7 +215,7 @@ Form fields:
 **Request:**
 
 ```bash
-curl -X POST https://api.elpass.kz/api/cards \
+curl -X POST https://api.elpass.uz/api/cards \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -F "name=Ivan Petrov" \
   -F "no=550e8400-e29b-41d4-a716-446655440000" \
@@ -264,42 +264,42 @@ curl -X POST https://api.elpass.kz/api/cards \
 **Get all cards:**
 
 ```bash
-curl -X GET "https://api.elpass.kz/api/cards" \
+curl -X GET "https://api.elpass.uz/api/cards" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 **Filter by name:**
 
 ```bash
-curl -X GET "https://api.elpass.kz/api/cards?name=Ivan" \
+curl -X GET "https://api.elpass.uz/api/cards?name=Ivan" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 **Filter by group:**
 
 ```bash
-curl -X GET "https://api.elpass.kz/api/cards?group=SITE001" \
+curl -X GET "https://api.elpass.uz/api/cards?group=SITE001" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 **Filter by creation date:**
 
 ```bash
-curl -X GET "https://api.elpass.kz/api/cards?created_at=2025-01-01" \
+curl -X GET "https://api.elpass.uz/api/cards?created_at=2025-01-01" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 **With pagination:**
 
 ```bash
-curl -X GET "https://api.elpass.kz/api/cards?page=1&size=20" \
+curl -X GET "https://api.elpass.uz/api/cards?page=1&size=20" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 **Include deleted cards:**
 
 ```bash
-curl -X GET "https://api.elpass.kz/api/cards?showDeletedCards=true" \
+curl -X GET "https://api.elpass.uz/api/cards?showDeletedCards=true" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
@@ -333,7 +333,7 @@ curl -X GET "https://api.elpass.kz/api/cards?showDeletedCards=true" \
 **Update name:**
 
 ```bash
-curl -X PATCH "https://api.elpass.kz/api/cards/a1b2c3d4e5f6g7h8" \
+curl -X PATCH "https://api.elpass.uz/api/cards/a1b2c3d4e5f6g7h8" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -d '{
@@ -344,7 +344,7 @@ curl -X PATCH "https://api.elpass.kz/api/cards/a1b2c3d4e5f6g7h8" \
 **Update photo:**
 
 ```bash
-curl -X PATCH "https://api.elpass.kz/api/cards/a1b2c3d4e5f6g7h8" \
+curl -X PATCH "https://api.elpass.uz/api/cards/a1b2c3d4e5f6g7h8" \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -F "photo=@/path/to/new-photo.jpg"
 ```
@@ -352,7 +352,7 @@ curl -X PATCH "https://api.elpass.kz/api/cards/a1b2c3d4e5f6g7h8" \
 **Extend validity:**
 
 ```bash
-curl -X PATCH "https://api.elpass.kz/api/cards/a1b2c3d4e5f6g7h8" \
+curl -X PATCH "https://api.elpass.uz/api/cards/a1b2c3d4e5f6g7h8" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -d '{
@@ -363,7 +363,7 @@ curl -X PATCH "https://api.elpass.kz/api/cards/a1b2c3d4e5f6g7h8" \
 **Disable card (temporary block):** When rent is unpaid or access needs suspension:
 
 ```bash
-curl -X PATCH "https://api.elpass.kz/api/cards/a1b2c3d4e5f6g7h8" \
+curl -X PATCH "https://api.elpass.uz/api/cards/a1b2c3d4e5f6g7h8" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -d '{
@@ -378,7 +378,7 @@ curl -X PATCH "https://api.elpass.kz/api/cards/a1b2c3d4e5f6g7h8" \
 **Request:**
 
 ```bash
-curl -X DELETE "https://api.elpass.kz/api/cards/a1b2c3d4e5f6g7h8" \
+curl -X DELETE "https://api.elpass.uz/api/cards/a1b2c3d4e5f6g7h8" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
@@ -689,7 +689,7 @@ class ElpassCardManager:
 
 # Usage example
 manager = ElpassCardManager(
-    api_url="https://api.elpass.kz",
+    api_url="https://api.elpass.uz",
     token="YOUR_JWT_TOKEN"
 )
 
