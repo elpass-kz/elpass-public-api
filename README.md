@@ -46,6 +46,34 @@ DELETE https://api.elpass.uz/api/cards/:uuid  # Delete card
 
 All API requests require a JWT Bearer token in the `Authorization` header. The JWT token contains your `host` identifier, which is used to determine which terminals to synchronize with.
 
+### Obtaining a Token
+
+To get your JWT token, send a POST request to the login endpoint:
+
+**Endpoint**: `https://bigapp.elpass.uz/api/rpc/login`
+
+**cURL**:
+
+```bash
+curl -X POST https://bigapp.elpass.uz/api/rpc/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "bigapp@gmail.com",
+    "pass": "pass"
+  }'
+```
+
+**Response**:
+
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "expire": 1772711855
+}
+```
+
+Use this token in the `Authorization` header for all subsequent API requests.
+
 ### Example:
 
 ```bash
