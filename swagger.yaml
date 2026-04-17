@@ -56,6 +56,86 @@ servers:
     description: Development PostgREST API
 
 paths:
+  /api/cards/sync-batch:
+    post:
+      summary: Booking - Book or cancel a zone in a residential complex
+      description: |
+        Book or cancel a shared amenity zone (e.g. movie room, fitness center) in a residential complex for a specific apartment.
+
+        **Two modes depending on request body**:
+
+        - **Book a zone**: provide `zone` field — grants the apartment access to the zone for the specified time window (`begin_at` / `end_at`)
+        - **Cancel a booking**: provide `deleteZone` field — revokes the apartment's access to the zone
+
+        **Fields**:
+        - `objectGuid` — residential complex (ЖК) identifier
+        - `guid` — apartment identifier that receives or loses access
+        - `zone` / `deleteZone` — zone name within the complex (e.g. `movieroom`, `fitness`)
+
+        > **Important**: When the booking period ends, the booking system **must** send a `deleteZone` request to remove the apartment's access. The system does not automatically revoke access when `end_at` is reached.
+      operationId: syncBatchBooking
+      tags:
+        - Booking
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: "#/components/schemas/BookingAddZoneRequest"
+                - $ref: "#/components/schemas/BookingRemoveZoneRequest"
+            examples:
+              addZone:
+                summary: Add card to zone
+                value:
+                  objectGuid: "abc123-object-guid"
+                  guid: "resident-guid-456"
+                  zone: "entrance1"
+                  begin_at: "2026-04-09T00:00:00"
+                  end_at: "2026-04-09T23:59:00"
+              removeZone:
+                summary: Remove card from zone
+                value:
+                  objectGuid: "abc123-object-guid"
+                  guid: "resident-guid-456"
+                  deleteZone: "entrance1"
+      responses:
+        200:
+          description: Operation completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SyncBatchBookingResponse"
+              examples:
+                addZone:
+                  summary: Add zone response
+                  value:
+                    success: true
+                    syncStatus:
+                      card:
+                        success: true
+                        operations:
+                          - terminalUrl: "http://192.168.1.100"
+                            success: true
+                            message: "Card synced successfully"
+                removeZone:
+                  summary: Remove zone response
+                  value:
+                    success: true
+                    syncStatus:
+                      card:
+                        success: true
+                        operations:
+                          - terminalUrl: "http://192.168.1.100"
+                            success: true
+                            message: "Card removed from zone successfully"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        401:
+          $ref: "#/components/responses/Unauthorized"
+
   /el_tcards:
     post:
       summary: Create a new access card
@@ -534,6 +614,84 @@ components:
           description: Card deletion timestamp (soft delete - null if not deleted)
           example: null
 
+    BookingAddZoneRequest:
+      type: object
+      required:
+        - objectGuid
+        - guid
+        - zone
+      properties:
+        objectGuid:
+          type: string
+          description: Residential complex (ЖК) identifier
+          example: "abc123-object-guid"
+        guid:
+          type: string
+          description: Apartment identifier that receives access to the zone
+          example: "apartment-guid-456"
+        zone:
+          type: string
+          description: Zone name to book within the complex (e.g. movieroom, fitness)
+          example: "movieroom"
+        begin_at:
+          type: string
+          format: date-time
+          description: Booking start time (ISO 8601, without Z suffix)
+          example: "2026-04-09T00:00:00"
+        end_at:
+          type: string
+          format: date-time
+          description: Booking end time (ISO 8601, without Z suffix)
+          example: "2026-04-09T23:59:00"
+
+    BookingRemoveZoneRequest:
+      type: object
+      required:
+        - objectGuid
+        - guid
+        - deleteZone
+      properties:
+        objectGuid:
+          type: string
+          description: Residential complex (ЖК) identifier
+          example: "abc123-object-guid"
+        guid:
+          type: string
+          description: Apartment identifier to cancel the booking for
+          example: "apartment-guid-456"
+        deleteZone:
+          type: string
+          description: Zone name to cancel booking for (e.g. movieroom, fitness)
+          example: "movieroom"
+
+    SyncBatchBookingResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        syncStatus:
+          type: object
+          properties:
+            card:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                operations:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      terminalUrl:
+                        type: string
+                        example: "http://192.168.1.100"
+                      success:
+                        type: boolean
+                      message:
+                        type: string
+                        example: "Card synced successfully"
+
     ErrorResponse:
       type: object
       properties:
@@ -588,3 +746,10 @@ tags:
 
       All requests require valid JWT authentication.
       The endpoint is `/cards`.
+  - name: Booking
+    description: |
+      Booking operations for shared amenity zones in a residential complex.
+
+      Allows apartments to book zones (e.g. movie room, fitness center) for a specific time period.
+      Access is automatically synced to the physical terminals for the booking duration.
+      The endpoint is `POST /api/cards/sync-batch`.

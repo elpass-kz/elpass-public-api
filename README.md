@@ -12,8 +12,9 @@ This guide explains how to integrate your apartment management application with 
 2. [Authentication](#authentication)
 3. [Card Data Model](#card-data-model)
 4. [Common Integration Scenarios](#common-integration-scenarios)
-5. [Error Handling](#error-handling)
-6. [FAQ](#faq)
+5. [Booking API](#booking-api)
+6. [Error Handling](#error-handling)
+7. [FAQ](#faq)
 
 ---
 
@@ -123,7 +124,7 @@ fetch("https://api.elpass.uz/api/cards", { headers });
   photo: File;                   // Photo file (required when passType is not GUEST)
   objectGuid: string;            // Object GUID from BigApp (required)
   entranceNumber?: string;       // Entrance number for access control (optional)
-  group?: string;                // Group: SITE_ID+APARTMENT_NO (optional)
+  group?: string;                // Group: SITE_ID (optional)
   begin_at?: string;             // Validity start date ISO 8601 (optional, default: now)
   end_at?: string;               // Validity end date ISO 8601 (required for GUEST passType, default: now + 10 years)
   passType?: string;             // Pass type: "permanent" | "guest" | "blocked" (optional)
@@ -142,25 +143,25 @@ fetch("https://api.elpass.uz/api/cards", { headers });
 
 ### Field Descriptions
 
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| **no** | UUID | ✅ Yes | Card number - **must be UUID from your resident database** (unique across system) |
-| **name** | String | ✅ Yes | Resident's full name (1-100 characters) |
-| **photo** | File | ⚠️ Conditional | Face photo file - **required when passType is not GUEST**, optional for updates |
-| **objectGuid** | String | ✅ Yes | Object GUID from BigApp - identifies the building/complex |
-| **entranceNumber** | String | ❌ Optional | Entrance number for access control (e.g., "1", "2") |
-| **group** | String | ❌ Optional | Card group - format: `SITE_ID+APARTMENT_NO` (used for photo organization) |
-| **begin_at** | ISO 8601 DateTime | ❌ Optional | Card activation date (default: current date/time) |
-| **end_at** | ISO 8601 DateTime | ⚠️ Conditional | Card expiration date - **required for GUEST passType** (default: current date + 10 years) |
-| **passType** | String | ❌ Optional | Pass type: "permanent", "guest", "blocked". **GUEST cards get auto-generated PIN** |
-| **meta** | JSON String | ❌ Optional | Metadata for BigApp integration (JSON stringified). **Note:** Meta fields can also be passed as separate top-level fields instead of inside the `meta` object (e.g., `objectGuid`, `objectName`, `flatno` can be sent directly) |
-| **uuid** | String | 🔒 Readonly | Internal system identifier (16 characters) - auto-generated |
-| **isOK** | Boolean | 🔒 Readonly | `true` if card is synchronized with all terminals successfully |
-| **isDisabled** | Boolean | ✏️ Editable | Set to `true` to disable card access without deletion |
-| **created_at** | DateTime | 🔒 Readonly | Card creation timestamp |
-| **updated_at** | DateTime | 🔒 Readonly | Last update timestamp |
-| **deleted_at** | DateTime | 🔒 Readonly | Soft delete timestamp (null = not deleted) |
-| **status** | Object | 🔒 Readonly | Synchronization status with terminals |
+| Field              | Type              | Required       | Description                                                                                                                                                                                                                     |
+| ------------------ | ----------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **no**             | UUID              | ✅ Yes         | Card number - **must be UUID from your resident database** (unique across system)                                                                                                                                               |
+| **name**           | String            | ✅ Yes         | Resident's full name (1-100 characters)                                                                                                                                                                                         |
+| **photo**          | File              | ⚠️ Conditional | Face photo file - **required when passType is not GUEST**, optional for updates                                                                                                                                                 |
+| **objectGuid**     | String            | ✅ Yes         | Object GUID from BigApp - identifies the building/complex                                                                                                                                                                       |
+| **entranceNumber** | String            | ❌ Optional    | Entrance number for access control (e.g., "1", "2")                                                                                                                                                                             |
+| **group**          | String            | ❌ Optional    | Card group - format: `SITE_ID` (used for photo organization)                                                                                                                                                                    |
+| **begin_at**       | ISO 8601 DateTime | ❌ Optional    | Card activation date (default: current date/time)                                                                                                                                                                               |
+| **end_at**         | ISO 8601 DateTime | ⚠️ Conditional | Card expiration date - **required for GUEST passType** (default: current date + 10 years)                                                                                                                                       |
+| **passType**       | String            | ❌ Optional    | Pass type: "permanent", "guest", "blocked". **GUEST cards get auto-generated PIN**                                                                                                                                              |
+| **meta**           | JSON String       | ❌ Optional    | Metadata for BigApp integration (JSON stringified). **Note:** Meta fields can also be passed as separate top-level fields instead of inside the `meta` object (e.g., `objectGuid`, `objectName`, `flatno` can be sent directly) |
+| **uuid**           | String            | 🔒 Readonly    | Internal system identifier (16 characters) - auto-generated                                                                                                                                                                     |
+| **isOK**           | Boolean           | 🔒 Readonly    | `true` if card is synchronized with all terminals successfully                                                                                                                                                                  |
+| **isDisabled**     | Boolean           | ✏️ Editable    | Set to `true` to disable card access without deletion                                                                                                                                                                           |
+| **created_at**     | DateTime          | 🔒 Readonly    | Card creation timestamp                                                                                                                                                                                                         |
+| **updated_at**     | DateTime          | 🔒 Readonly    | Last update timestamp                                                                                                                                                                                                           |
+| **deleted_at**     | DateTime          | 🔒 Readonly    | Soft delete timestamp (null = not deleted)                                                                                                                                                                                      |
+| **status**         | Object            | 🔒 Readonly    | Synchronization status with terminals                                                                                                                                                                                           |
 
 ### Photo Upload
 
@@ -187,12 +188,12 @@ POST /api/cards
 Content-Type: multipart/form-data
 
 Form fields:
-  no: "550e8400-e29b-41d4-a716-446655440000"
+  no: "12345678"
   name: "Ivan Petrov"
   photo: <file upload>  (required when passType is not GUEST)
   objectGuid: "abc12345-def6-7890-ghij-klmnopqrstuv"
   entranceNumber: "1"  (optional)
-  group: "SITE001+A101"  (optional)
+  group: "SITE001"  (optional)
   begin_at: "2025-01-15T00:00:00Z"  (optional)
   end_at: "2026-01-15T23:59:59Z"  (required for GUEST passType, otherwise optional)
   passType: "permanent"  (optional, "guest" auto-generates PIN)
@@ -208,7 +209,7 @@ Form fields:
 {
   "success": true,
   "uuid": "a1b2c3d4e5f6g7h8",
-  "photoPath": "SITE001/550e8400-e29b-41d4-a716-446655440000.jpg",
+  "photoPath": "SITE001/12345678.jpg",
   "syncStatus": {
     "card": {
       "success": true,
@@ -246,11 +247,11 @@ Form fields:
 curl -X POST https://api.elpass.uz/api/cards \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -F "name=Ivan Petrov" \
-  -F "no=550e8400-e29b-41d4-a716-446655440000" \
+  -F "no=12345678" \
   -F "objectGuid=abc12345-def6-7890-ghij-klmnopqrstuv" \
   -F "photo=@/path/to/photo.jpg" \
   -F "entranceNumber=1" \
-  -F "group=SITE001+A101" \
+  -F "group=SITE001" \
   -F "begin_at=2025-02-01T00:00:00Z" \
   -F "end_at=2026-02-01T23:59:59Z"
 ```
@@ -261,7 +262,7 @@ curl -X POST https://api.elpass.uz/api/cards \
 {
   "success": true,
   "uuid": "a1b2c3d4e5f6g7h8",
-  "photoPath": "SITE001/550e8400-e29b-41d4-a716-446655440000.jpg",
+  "photoPath": "SITE001/12345678.jpg",
   "syncStatus": {
     "card": {
       "success": true,
@@ -299,9 +300,9 @@ curl -X POST https://api.elpass.uz/api/cards \
   -F "objectGuid=abc12345-def6-7890-ghij-klmnopqrstuv" \
   -F "passType=guest" \
   -F "entranceNumber=1" \
-  -F "group=SITE001+A101" \
-  -F "begin_at=2025-02-01T00:00:00Z" \
-  -F "end_at=2025-02-07T23:59:59Z"
+  -F "group=SITE001 \
+  -F "begin_at=2025-02-01T00:00:00" \
+  -F "end_at=2025-02-07T23:59:59"
 ```
 
 > **Note**: For guest cards, `end_at` is required, but `photo` is optional. **PIN code is auto-generated** by the system and returned in the response. The guest can use this PIN to access via keypad entry.
@@ -312,7 +313,7 @@ curl -X POST https://api.elpass.uz/api/cards \
 {
   "success": true,
   "uuid": "b2c3d4e5f6g7h8i9",
-  "pin": "4827",
+  "pin": "482712",
   "syncStatus": {
     "card": {
       "success": true,
@@ -384,16 +385,16 @@ curl -X GET "https://api.elpass.uz/api/cards?showDeletedCards=true" \
   "cards": [
     {
       "uuid": "a1b2c3d4e5f6g7h8",
-      "no": "550e8400-e29b-41d4-a716-446655440000",
+      "no": "12345678",
       "name": "Ivan Petrov",
-      "group": "SITE001+A101",
-      "photo": "SITE001/550e8400-e29b-41d4-a716-446655440000.jpg",
-      "begin_at": "2025-01-15T00:00:00.000Z",
-      "end_at": "2026-01-15T23:59:59.000Z",
+      "group": "SITE001",
+      "photo": "SITE001/12345678.jpg",
+      "begin_at": "2025-01-15T00:00:00.000",
+      "end_at": "2026-01-15T23:59:59.000",
       "isOK": true,
       "isDisabled": false,
-      "created_at": "2025-01-10T14:30:00.000Z",
-      "updated_at": "2025-01-10T14:30:00.000Z",
+      "created_at": "2025-01-10T14:30:00.000",
+      "updated_at": "2025-01-10T14:30:00.000",
       "deleted_at": null
     }
   ],
@@ -480,6 +481,344 @@ curl -X DELETE "https://api.elpass.uz/api/cards/a1b2c3d4e5f6g7h8" \
 
 ---
 
+## Booking API
+
+The booking API allows residents of an apartment complex to book shared amenities (e.g. movie room, fitness center) for a specific time period. Access to the booked zone is automatically granted to the apartment for the duration of the booking and revoked when it ends.
+
+**Endpoint**: `POST https://api.elpass.uz/api/cards/sync-batch`
+
+Fields:
+
+- `objectGuid` — residential complex (ЖК) identifier
+- `guid` — apartment identifier that will receive access to the zone
+- `zone` / `deleteZone` — zone name within the complex (e.g. `movieroom`, `fitness`)
+
+### 6. Book a Zone
+
+Book a shared amenity zone for an apartment within a specific time window. Access is automatically synced to the terminals for the booking period.
+
+**Request:**
+
+```bash
+curl -X POST https://api.elpass.uz/api/cards/sync-batch \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "objectGuid": "abc123-object-guid",
+    "guid": "resident-guid-456",
+    "zone": "movieroom",
+    "begin_at": "2026-04-09T10:00:00",
+    "end_at": "2026-04-09T12:00:00"
+  }'
+```
+
+| Field          | Type     | Required    | Description                                     |
+| -------------- | -------- | ----------- | ----------------------------------------------- |
+| **objectGuid** | String   | ✅ Yes      | Residential complex (ЖК) identifier             |
+| **guid**       | String   | ✅ Yes      | Apartment identifier that receives access       |
+| **zone**       | String   | ✅ Yes      | Zone name to book (e.g. `movieroom`, `fitness`) |
+| **begin_at**   | DateTime | ❌ Optional | Booking start time (ISO 8601, no Z suffix)      |
+| **end_at**     | DateTime | ❌ Optional | Booking end time (ISO 8601, no Z suffix)        |
+
+**Response (200 OK):**
+
+```json
+{
+  "success": true,
+  "summary": {
+    "total": 2,
+    "succeeded": 2,
+    "failed": 0,
+    "skipped": 0
+  },
+  "results": [
+    {
+      "uuid": "95f0d969",
+      "success": true,
+      "status": {
+        "card": {
+          "ver": 1,
+          "080d6a50": {
+            "ver": 1
+          },
+          "1bbf3604": {
+            "ver": 1
+          },
+          "5543373f": {
+            "ver": 1
+          },
+          "807703c3": {
+            "ver": 1
+          },
+          "93637a39": {
+            "ver": 1
+          },
+          "c86eaae9": {
+            "ver": 1
+          },
+          "e844e869": {
+            "ver": 1
+          },
+          "2fa8a0dd": {
+            "ver": 1
+          },
+          "05eb8951": {
+            "ver": 1
+          }
+        },
+        "photo": {
+          "ver": 1,
+          "080d6a50": {
+            "ver": 1
+          },
+          "1bbf3604": {
+            "ver": 1
+          },
+          "5543373f": {
+            "ver": 1
+          },
+          "807703c3": {
+            "ver": 1
+          },
+          "93637a39": {
+            "ver": 1
+          },
+          "c86eaae9": {
+            "ver": 1
+          },
+          "e844e869": {
+            "ver": 1
+          },
+          "2fa8a0dd": {
+            "ver": 1
+          },
+          "05eb8951": {
+            "ver": 1
+          }
+        }
+      }
+    },
+    {
+      "uuid": "674b9d07",
+      "success": true,
+      "status": {
+        "card": {
+          "ver": 1,
+          "080d6a50": {
+            "ver": 1
+          },
+          "1bbf3604": {
+            "ver": 1
+          },
+          "5543373f": {
+            "ver": 1
+          },
+          "807703c3": {
+            "ver": 1
+          },
+          "93637a39": {
+            "ver": 1
+          },
+          "c86eaae9": {
+            "ver": 1
+          },
+          "e844e869": {
+            "ver": 1
+          },
+          "2fa8a0dd": {
+            "ver": 1
+          },
+          "05eb8951": {
+            "ver": 1
+          }
+        },
+        "photo": {
+          "ver": 1,
+          "080d6a50": {
+            "ver": 1
+          },
+          "1bbf3604": {
+            "ver": 1
+          },
+          "5543373f": {
+            "ver": 1
+          },
+          "807703c3": {
+            "ver": 1
+          },
+          "93637a39": {
+            "ver": 1
+          },
+          "c86eaae9": {
+            "ver": 1
+          },
+          "e844e869": {
+            "ver": 1
+          },
+          "2fa8a0dd": {
+            "ver": 1
+          },
+          "05eb8951": {
+            "ver": 1
+          }
+        }
+      }
+    }
+  ]
+}
+```
+
+### 7. Cancel a Zone Booking
+
+Cancel an existing booking and revoke the apartment's access to the zone.
+
+**Request:**
+
+```bash
+curl -X POST https://api.elpass.uz/api/cards/sync-batch \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "objectGuid": "abc123-object-guid",
+    "guid": "resident-guid-456",
+    "deleteZone": "entrance1"
+  }'
+```
+
+| Field          | Type   | Required | Description                                                   |
+| -------------- | ------ | -------- | ------------------------------------------------------------- |
+| **objectGuid** | String | ✅ Yes   | Residential complex (ЖК) identifier                           |
+| **guid**       | String | ✅ Yes   | Apartment identifier to revoke access from                    |
+| **deleteZone** | String | ✅ Yes   | Zone name to cancel booking for (e.g. `movieroom`, `fitness`) |
+
+**Response (200 OK):**
+
+```json
+{
+  "success": true,
+  "summary": {
+    "total": 2,
+    "succeeded": 2,
+    "failed": 0,
+    "skipped": 0
+  },
+  "results": [
+    {
+      "uuid": "674b9d07",
+      "success": true,
+      "status": {
+        "card": {
+          "ver": 1,
+          "080d6a50": {
+            "ver": 1
+          },
+          "1bbf3604": {
+            "ver": 1
+          },
+          "5543373f": {
+            "ver": 1
+          },
+          "807703c3": {
+            "ver": 1
+          },
+          "93637a39": {
+            "ver": 1
+          },
+          "c86eaae9": {
+            "ver": 1
+          },
+          "e844e869": {
+            "ver": 1
+          }
+        },
+        "photo": {
+          "ver": 1,
+          "080d6a50": {
+            "ver": 1
+          },
+          "1bbf3604": {
+            "ver": 1
+          },
+          "5543373f": {
+            "ver": 1
+          },
+          "807703c3": {
+            "ver": 1
+          },
+          "93637a39": {
+            "ver": 1
+          },
+          "c86eaae9": {
+            "ver": 1
+          },
+          "e844e869": {
+            "ver": 1
+          }
+        }
+      }
+    },
+    {
+      "uuid": "95f0d969",
+      "success": true,
+      "status": {
+        "card": {
+          "ver": 1,
+          "080d6a50": {
+            "ver": 1
+          },
+          "1bbf3604": {
+            "ver": 1
+          },
+          "5543373f": {
+            "ver": 1
+          },
+          "807703c3": {
+            "ver": 1
+          },
+          "93637a39": {
+            "ver": 1
+          },
+          "c86eaae9": {
+            "ver": 1
+          },
+          "e844e869": {
+            "ver": 1
+          }
+        },
+        "photo": {
+          "ver": 1,
+          "080d6a50": {
+            "ver": 1
+          },
+          "1bbf3604": {
+            "ver": 1
+          },
+          "5543373f": {
+            "ver": 1
+          },
+          "807703c3": {
+            "ver": 1
+          },
+          "93637a39": {
+            "ver": 1
+          },
+          "c86eaae9": {
+            "ver": 1
+          },
+          "e844e869": {
+            "ver": 1
+          }
+        }
+      }
+    }
+  ]
+}
+```
+
+> **Important**: When the booking period ends, access is automatically revoked by the terminals (`end_at` is enforced). However, the card entry remains on the terminal. To avoid duplicate card accumulation on terminals over time, the booking system **must** send a `deleteZone` request after the booking expires to clean up the card from the terminal.
+
+---
+
 ## Error Handling
 
 ### Common Error Responses
@@ -490,7 +829,7 @@ curl -X DELETE "https://api.elpass.uz/api/cards/a1b2c3d4e5f6g7h8" \
 {
   "message": "Invalid group format",
   "code": "400",
-  "details": "Expected format: SITE_ID+APARTMENT_NO"
+  "details": "Expected format: SITE_ID"
 }
 ```
 
@@ -502,7 +841,7 @@ curl -X DELETE "https://api.elpass.uz/api/cards/a1b2c3d4e5f6g7h8" \
 {
   "message": "Duplicate key value violates unique constraint \"uk_no\"",
   "code": "23505",
-  "details": "Key (no)=(550e8400-e29b-41d4-a716-446655440000) already exists."
+  "details": "Key (no)=(12345678) already exists."
 }
 ```
 
@@ -570,6 +909,7 @@ def call_api_with_retry(url, method="GET", data=None, max_retries=3):
 ### Q: How does PIN access work for guest cards?
 
 **A**: When you create a card with `passType: "guest"`, the system automatically generates a random 4-digit PIN code. This PIN is:
+
 - Returned in the API response (in the `pin` field)
 - Synced to all access control terminals
 - Used by the guest for keypad entry (instead of or in addition to face recognition)
@@ -618,7 +958,7 @@ Share the PIN with the guest along with the access validity period (`begin_at` t
 **A**: Yes, use PostgREST `and` operator:
 
 ```
-?and=(group.eq.SITE001+A101,isDisabled.eq.false,deleted_at.is.null)
+?and=(group.eq.SITE001,isDisabled.eq.false,deleted_at.is.null)
 ``` -->
 
 ### Q: What's the pagination limit?
@@ -786,11 +1126,11 @@ manager = ElpassCardManager(
 
 # Create card with photo (permanent resident)
 card = manager.create_card(
-    resident_uuid="550e8400-e29b-41d4-a716-446655440000",
+    resident_uuid="12345678",
     name="Ivan Petrov",
     object_guid="abc12345-def6-7890-ghij-klmnopqrstuv",
     photo_path="photos/ivan-petrov.jpg",
-    group="SITE001+A101",
+    group="SITE001",
     entrance_number="1"
 )
 print(f"✓ Card created: {card['uuid']}")
