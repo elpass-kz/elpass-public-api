@@ -14,7 +14,7 @@ This guide explains how to integrate your apartment management application with 
 4. [API Examples](#api-examples) (CRUD, Force Sync, Restore Terminal)
 5. [Booking API](#booking-api) (Booking, Batch Sync)
 6. [Error Handling](#error-handling)
-7. [FAQ](#faq)aa
+7. [FAQ](#faq)
 
 ---
 
