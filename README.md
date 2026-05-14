@@ -536,137 +536,23 @@ curl -X POST https://api.elpass.uz/api/cards/sync-batch \
       "uuid": "95f0d969",
       "success": true,
       "status": {
-        "card": {
-          "ver": 1,
-          "080d6a50": {
-            "ver": 1
-          },
-          "1bbf3604": {
-            "ver": 1
-          },
-          "5543373f": {
-            "ver": 1
-          },
-          "807703c3": {
-            "ver": 1
-          },
-          "93637a39": {
-            "ver": 1
-          },
-          "c86eaae9": {
-            "ver": 1
-          },
-          "e844e869": {
-            "ver": 1
-          },
-          "2fa8a0dd": {
-            "ver": 1
-          },
-          "05eb8951": {
-            "ver": 1
-          }
-        },
-        "photo": {
-          "ver": 1,
-          "080d6a50": {
-            "ver": 1
-          },
-          "1bbf3604": {
-            "ver": 1
-          },
-          "5543373f": {
-            "ver": 1
-          },
-          "807703c3": {
-            "ver": 1
-          },
-          "93637a39": {
-            "ver": 1
-          },
-          "c86eaae9": {
-            "ver": 1
-          },
-          "e844e869": {
-            "ver": 1
-          },
-          "2fa8a0dd": {
-            "ver": 1
-          },
-          "05eb8951": {
-            "ver": 1
-          }
-        }
+        "card": { "ver": 1, "080d6a50": { "ver": 1 }, "1bbf3604": { "ver": 1 }, "..." : "..." },
+        "photo": { "ver": 1, "080d6a50": { "ver": 1 }, "1bbf3604": { "ver": 1 }, "..." : "..." }
       }
     },
     {
       "uuid": "674b9d07",
       "success": true,
       "status": {
-        "card": {
-          "ver": 1,
-          "080d6a50": {
-            "ver": 1
-          },
-          "1bbf3604": {
-            "ver": 1
-          },
-          "5543373f": {
-            "ver": 1
-          },
-          "807703c3": {
-            "ver": 1
-          },
-          "93637a39": {
-            "ver": 1
-          },
-          "c86eaae9": {
-            "ver": 1
-          },
-          "e844e869": {
-            "ver": 1
-          },
-          "2fa8a0dd": {
-            "ver": 1
-          },
-          "05eb8951": {
-            "ver": 1
-          }
-        },
-        "photo": {
-          "ver": 1,
-          "080d6a50": {
-            "ver": 1
-          },
-          "1bbf3604": {
-            "ver": 1
-          },
-          "5543373f": {
-            "ver": 1
-          },
-          "807703c3": {
-            "ver": 1
-          },
-          "93637a39": {
-            "ver": 1
-          },
-          "c86eaae9": {
-            "ver": 1
-          },
-          "e844e869": {
-            "ver": 1
-          },
-          "2fa8a0dd": {
-            "ver": 1
-          },
-          "05eb8951": {
-            "ver": 1
-          }
-        }
+        "card": { "ver": 1, "080d6a50": { "ver": 1 }, "1bbf3604": { "ver": 1 }, "..." : "..." },
+        "photo": { "ver": 1, "080d6a50": { "ver": 1 }, "1bbf3604": { "ver": 1 }, "..." : "..." }
       }
     }
   ]
 }
 ```
+
+> **Note:** The `status` object contains a `ver` (version) field and per-terminal sync status keyed by terminal ID. Each terminal entry shows its synced version number.
 
 ### 7. Cancel a Zone Booking
 
@@ -707,108 +593,16 @@ curl -X POST https://api.elpass.uz/api/cards/sync-batch \
       "uuid": "674b9d07",
       "success": true,
       "status": {
-        "card": {
-          "ver": 1,
-          "080d6a50": {
-            "ver": 1
-          },
-          "1bbf3604": {
-            "ver": 1
-          },
-          "5543373f": {
-            "ver": 1
-          },
-          "807703c3": {
-            "ver": 1
-          },
-          "93637a39": {
-            "ver": 1
-          },
-          "c86eaae9": {
-            "ver": 1
-          },
-          "e844e869": {
-            "ver": 1
-          }
-        },
-        "photo": {
-          "ver": 1,
-          "080d6a50": {
-            "ver": 1
-          },
-          "1bbf3604": {
-            "ver": 1
-          },
-          "5543373f": {
-            "ver": 1
-          },
-          "807703c3": {
-            "ver": 1
-          },
-          "93637a39": {
-            "ver": 1
-          },
-          "c86eaae9": {
-            "ver": 1
-          },
-          "e844e869": {
-            "ver": 1
-          }
-        }
+        "card": { "ver": 1, "080d6a50": { "ver": 1 }, "1bbf3604": { "ver": 1 }, "..." : "..." },
+        "photo": { "ver": 1, "080d6a50": { "ver": 1 }, "1bbf3604": { "ver": 1 }, "..." : "..." }
       }
     },
     {
       "uuid": "95f0d969",
       "success": true,
       "status": {
-        "card": {
-          "ver": 1,
-          "080d6a50": {
-            "ver": 1
-          },
-          "1bbf3604": {
-            "ver": 1
-          },
-          "5543373f": {
-            "ver": 1
-          },
-          "807703c3": {
-            "ver": 1
-          },
-          "93637a39": {
-            "ver": 1
-          },
-          "c86eaae9": {
-            "ver": 1
-          },
-          "e844e869": {
-            "ver": 1
-          }
-        },
-        "photo": {
-          "ver": 1,
-          "080d6a50": {
-            "ver": 1
-          },
-          "1bbf3604": {
-            "ver": 1
-          },
-          "5543373f": {
-            "ver": 1
-          },
-          "807703c3": {
-            "ver": 1
-          },
-          "93637a39": {
-            "ver": 1
-          },
-          "c86eaae9": {
-            "ver": 1
-          },
-          "e844e869": {
-            "ver": 1
-          }
-        }
+        "card": { "ver": 1, "080d6a50": { "ver": 1 }, "1bbf3604": { "ver": 1 }, "..." : "..." },
+        "photo": { "ver": 1, "080d6a50": { "ver": 1 }, "1bbf3604": { "ver": 1 }, "..." : "..." }
       }
     }
   ]
@@ -1173,4 +967,4 @@ print("✓ Card deleted")
 
 ---
 
-**Document Version**: 1.0 **Last Updated**: February 2026 **API Version**: Express.js REST API v1.0
+**Document Version**: 1.1 **Last Updated**: May 2026 **API Version**: Express.js REST API v1.0
