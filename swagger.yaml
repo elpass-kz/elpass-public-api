@@ -166,7 +166,7 @@ paths:
                 photo:
                   type: string
                   format: binary
-                  description: Фото (обязательно для passType != "guest", если не физическая карта)
+                  description: Фото (опционально для всех типов пропусков)
                 begin_at:
                   type: string
                   format: date-time
