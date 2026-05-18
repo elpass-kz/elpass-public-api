@@ -802,6 +802,104 @@ paths:
                     photoError: "Photo not found on pic server"
                     skipped: false
 
+  /api/bookings/zones:
+    get:
+      summary: Зоны бронирования объекта
+      description: Возвращает список зон бронирования привязанных к указанному objectGuid
+      x-code-samples:
+        - lang: curl
+          source: |
+            curl "https://api.elpass.kz/api/el_zones?meta_->>objectGuid=eq.62027a54-4f04-11e6-9a13-b4b52f5405e7" \
+              -H "Authorization: Bearer YOUR_TOKEN"
+      parameters:
+        - name: objectGuid
+          in: query
+          required: true
+          schema:
+            type: string
+          description: GUID объекта недвижимости
+      responses:
+        "200":
+          description: Список зон
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BookingZone"
+              example:
+                - id: 4
+                  name: cinema
+                  title: Кинотеатр
+                  type: ["room"]
+                  capacity: null
+                  photo: null
+                  meta_:
+                    objectGuid: "62027a54-4f04-11e6-9a13-b4b52f5405e7"
+                    objectName: "Garden View"
+                    description: null
+        "401":
+          description: Токен отсутствует или недействителен
+
+  /api/bookings:
+    get:
+      summary: Бронирования по guid резидента
+      description: Возвращает список бронирований привязанных к указанному guid резидента
+      x-code-samples:
+        - lang: curl
+          source: |
+            curl "https://api.elpass.kz/api/el_bookings?meta_->>guid=eq.706ccbdf-86f9-4b82-9e34-b9d3cd2e7948" \
+              -H "Authorization: Bearer YOUR_TOKEN"
+      parameters:
+        - name: guid
+          in: query
+          required: true
+          schema:
+            type: string
+          description: GUID резидента
+        - name: valid_period
+          in: query
+          schema:
+            type: string
+          description: "Фильтр по периоду (PostgREST range), например: ov.[2026-04-06T00:00:00,2026-04-13T00:00:00)"
+        - name: zone_id
+          in: query
+          schema:
+            type: integer
+          description: Фильтр по зоне
+      responses:
+        "200":
+          description: Список бронирований
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Booking"
+              example:
+                - id: 28
+                  card_id: 116119
+                  zone_id: 4
+                  valid_period: "[\"2026-04-10 09:00:00+05\",\"2026-04-10 10:00:00+05\")"
+                  note: ""
+                  created_at: "2026-04-10T02:15:39.594816+05:00"
+                  disabled: false
+                  host: bigapp
+                  meta_:
+                    guid: "706ccbdf-86f9-4b82-9e34-b9d3cd2e7948"
+                    objectGuid: "62027a54-4f04-11e6-9a13-b4b52f5405e7"
+                    sync_status: superseded
+                  card:
+                    id: 116119
+                    no: "1773869825337"
+                    name: Тест
+                  zone:
+                    id: 4
+                    name: cinema
+                    title: Кинотеатр
+        "401":
+          description: Токен отсутствует или недействителен
+
 components:
   securitySchemes:
     BearerAuth:
@@ -906,6 +1004,90 @@ components:
               type: array
               items:
                 $ref: "#/components/schemas/OperationResult"
+
+    BookingZone:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        title:
+          type: string
+        type:
+          type: array
+          items:
+            type: string
+        capacity:
+          type: integer
+          nullable: true
+        photo:
+          type: string
+          nullable: true
+        meta_:
+          type: object
+          properties:
+            objectGuid:
+              type: string
+            objectName:
+              type: string
+            description:
+              type: string
+              nullable: true
+
+    Booking:
+      type: object
+      properties:
+        id:
+          type: integer
+        card_id:
+          type: integer
+        zone_id:
+          type: integer
+        valid_period:
+          type: string
+          description: "PostgreSQL tstzrange, например: [\"2026-04-10 09:00:00+05\",\"2026-04-10 10:00:00+05\")"
+        note:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        disabled:
+          type: boolean
+        host:
+          type: string
+        owner:
+          type: string
+        meta_:
+          type: object
+          properties:
+            guid:
+              type: string
+            objectGuid:
+              type: string
+            sync_status:
+              type: string
+            synced_at:
+              type: string
+              format: date-time
+        card:
+          type: object
+          properties:
+            id:
+              type: integer
+            no:
+              type: string
+            name:
+              type: string
+        zone:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+            title:
+              type: string
 
     OperationResult:
       type: object

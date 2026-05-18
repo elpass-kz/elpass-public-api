@@ -12,7 +12,7 @@ This guide explains how to integrate your apartment management application with 
 2. [Authentication](#authentication)
 3. [Card Data Model](#card-data-model)
 4. [API Examples](#api-examples) (CRUD, Force Sync, Restore Terminal)
-5. [Booking API](#booking-api) (Booking, Batch Sync)
+5. [Booking API](#booking-api) (Booking, Batch Sync, Zones & Bookings Query)
 6. [Error Handling](#error-handling)
 7. [FAQ](#faq)
 
@@ -800,6 +800,94 @@ curl -X POST https://api.elpass.uz/api/cards/sync-batch \
 - `begin_at` — Override card validity start
 - `end_at` — Override card validity end
 
+### 12. Get Booking Zones by Object
+
+Returns the list of bookable zones for a given residential complex (`objectGuid`). Results are filtered by the `host` claim in the JWT token via RLS.
+
+**Endpoint**: `GET https://api.elpass.kz/api/el_zones`
+
+**Request:**
+
+```bash
+curl "https://api.elpass.kz/api/el_zones?meta_->>objectGuid=eq.62027a54-4f04-11e6-9a13-b4b52f5405e7" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+| Parameter      | Required | Description                     |
+| -------------- | -------- | ------------------------------- |
+| **objectGuid** | ✅ Yes   | GUID of the residential complex |
+
+**Response (200 OK):**
+
+```json
+[
+  {
+    "id": 4,
+    "name": "cinema",
+    "title": "Кинотеатр",
+    "type": ["room"],
+    "capacity": null,
+    "photo": null,
+    "meta_": {
+      "objectGuid": "62027a54-4f04-11e6-9a13-b4b52f5405e7",
+      "objectName": "Garden View",
+      "description": null
+    }
+  }
+]
+```
+
+### 13. Get Bookings by Resident GUID
+
+Returns all bookings linked to a specific resident `guid`. Results are filtered by the `host` claim in the JWT token via RLS.
+
+**Endpoint**: `GET https://api.elpass.kz/api/el_bookings`
+
+**Request:**
+
+```bash
+curl "https://api.elpass.kz/api/el_bookings?meta_->>guid=eq.706ccbdf-86f9-4b82-9e34-b9d3cd2e7948" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+| Parameter        | Required | Description                                                                        |
+| ---------------- | -------- | ---------------------------------------------------------------------------------- |
+| **guid**         | ✅ Yes   | Resident GUID                                                                      |
+| **valid_period** | ❌ No    | Filter by period, e.g. `ov.[2026-04-06T00:00:00,2026-04-13T00:00:00)` |
+| **zone_id**      | ❌ No    | Filter by zone ID                                                                  |
+
+**Response (200 OK):**
+
+```json
+[
+  {
+    "id": 28,
+    "card_id": 116119,
+    "zone_id": 4,
+    "valid_period": "[\"2026-04-10 09:00:00+05\",\"2026-04-10 10:00:00+05\")",
+    "note": "",
+    "created_at": "2026-04-10T02:15:39.594816+05:00",
+    "disabled": false,
+    "host": "bigapp",
+    "meta_": {
+      "guid": "706ccbdf-86f9-4b82-9e34-b9d3cd2e7948",
+      "objectGuid": "62027a54-4f04-11e6-9a13-b4b52f5405e7",
+      "sync_status": "superseded"
+    },
+    "card": {
+      "id": 116119,
+      "no": "1773869825337",
+      "name": "Тест"
+    },
+    "zone": {
+      "id": 4,
+      "name": "cinema",
+      "title": "Кинотеатр"
+    }
+  }
+]
+```
+
 ---
 
 ## Error Handling
@@ -1156,4 +1244,4 @@ print("✓ Card deleted")
 
 ---
 
-**Document Version**: 1.1 **Last Updated**: May 2026 **API Version**: Express.js REST API v1.0
+**Document Version**: 1.2 **Last Updated**: May 2026 **API Version**: Express.js REST API v1.0
