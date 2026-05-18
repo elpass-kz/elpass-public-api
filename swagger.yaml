@@ -890,6 +890,60 @@ paths:
         "401":
           description: Токен отсутствует или недействителен
 
+  /api/bookings/available-slots:
+    post:
+      summary: Свободные слоты для бронирования
+      description: Возвращает список часовых слотов (09:00–20:00) с признаком доступности для указанной зоны и даты
+      x-code-samples:
+        - lang: curl
+          source: |
+            curl -s "https://api.elpass.kz/api/rpc/get_available_slots" \
+              -H "Authorization: Bearer YOUR_TOKEN" \
+              -H "Content-Type: application/json" \
+              -d '{"p_object_guid":"62027a54-4f04-11e6-9a13-b4b52f5405e7","p_zone":"cinema","p_date":"2026-04-10"}'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [p_object_guid, p_zone, p_date]
+              properties:
+                p_object_guid:
+                  type: string
+                  description: GUID объекта недвижимости
+                p_zone:
+                  type: string
+                  description: Название зоны (поле name в el_zones)
+                p_date:
+                  type: string
+                  format: date
+                  description: Дата в формате YYYY-MM-DD
+            example:
+              p_object_guid: "62027a54-4f04-11e6-9a13-b4b52f5405e7"
+              p_zone: "cinema"
+              p_date: "2026-04-10"
+      responses:
+        "200":
+          description: Список слотов
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AvailableSlot"
+              example:
+                - slot_start: "2026-04-10T09:00:00+05:00"
+                  slot_end: "2026-04-10T10:00:00+05:00"
+                  label: "09:00 - 10:00"
+                  available: false
+                - slot_start: "2026-04-10T10:00:00+05:00"
+                  slot_end: "2026-04-10T11:00:00+05:00"
+                  label: "10:00 - 11:00"
+                  available: true
+        "401":
+          description: Токен отсутствует или недействителен
+
 components:
   securitySchemes:
     BearerAuth:
@@ -1078,6 +1132,21 @@ components:
               type: string
             title:
               type: string
+
+    AvailableSlot:
+      type: object
+      properties:
+        slot_start:
+          type: string
+          format: date-time
+        slot_end:
+          type: string
+          format: date-time
+        label:
+          type: string
+          description: Читаемое время слота, например "09:00 - 10:00"
+        available:
+          type: boolean
 
     OperationResult:
       type: object

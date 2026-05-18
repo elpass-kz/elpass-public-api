@@ -12,7 +12,7 @@ This guide explains how to integrate your apartment management application with 
 2. [Authentication](#authentication)
 3. [Card Data Model](#card-data-model)
 4. [API Examples](#api-examples) (CRUD, Force Sync, Restore Terminal)
-5. [Booking API](#booking-api) (Booking, Batch Sync, Zones & Bookings Query)
+5. [Booking API](#booking-api) (Booking, Batch Sync, Zones & Bookings Query, Available Slots)
 6. [Error Handling](#error-handling)
 7. [FAQ](#faq)
 
@@ -153,30 +153,30 @@ fetch("https://api.elpass.uz/api/cards", { headers });
 
 ### Field Descriptions
 
-| Field              | Type              | Required       | Description                                                                                                                                                                                                                     |
-| ------------------ | ----------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **no**             | String            | ✅ Yes         | Card number (unique across system, max 32 characters)                                                                                                                                                                           |
-| **name**           | String            | ✅ Yes         | Resident's full name (1-100 characters)                                                                                                                                                                                         |
-| **photo**          | File              | ❌ Optional    | Face photo file                                                                                                                                                                                                                 |
-| **objectGuid**     | String            | ⚠️ Conditional | Object GUID from BigApp - identifies the building/complex. **Required for bigapp host**                                                                                                                                         |
-| **entranceNumber** | String            | ❌ Optional    | Entrance number for access control (e.g., "1", "2"). Used as default zone if `zones` not provided                                                                                                                               |
-| **zones**          | String[]          | ❌ Optional    | Zones for terminal synchronization (e.g., `["entrance1", "parking"]`). Defaults to `entranceNumber` if provided, otherwise `["all"]`                                                                                            |
-| **group**          | String            | ❌ Optional    | Card group - format: `SITE_ID` (used as photo subfolder)                                                                                                                                                                        |
-| **begin_at**       | ISO 8601 DateTime | ❌ Optional    | Card activation date (default: current date/time)                                                                                                                                                                               |
-| **end_at**         | ISO 8601 DateTime | ⚠️ Conditional | Card expiration date - **required for GUEST passType** (default: current date + 10 years)                                                                                                                                       |
-| **passType**       | String            | ❌ Optional    | Pass type: "permanent", "guest", "blocked". **GUEST cards get auto-generated 6-digit PIN**                                                                                                                                      |
-| **propertyGuid**   | String            | ❌ Optional    | Property GUID identifier (can be passed at top level or inside `meta`)                                                                                                                                                          |
-| **guid**           | String            | ❌ Optional    | Resident/apartment GUID (can be passed at top level or inside `meta`)                                                                                                                                                           |
-| **flatno**         | String            | ❌ Optional    | Flat/apartment number (can be passed at top level or inside `meta`)                                                                                                                                                              |
-| **objectName**     | String            | ❌ Optional    | Object/complex name (can be passed at top level or inside `meta`)                                                                                                                                                                |
-| **meta**           | JSON String       | ❌ Optional    | Metadata (JSON stringified). **Note:** Meta fields can also be passed as separate top-level fields instead of inside the `meta` object                                                                                          |
-| **uuid**           | String            | 🔒 Readonly    | Internal system identifier (16 characters) - auto-generated                                                                                                                                                                     |
-| **isOK**           | Boolean           | 🔒 Readonly    | `true` if card is synchronized with all terminals successfully                                                                                                                                                                  |
-| **isDisabled**     | Boolean           | ✏️ Editable    | Set to `true` to disable card access without deletion                                                                                                                                                                           |
-| **created_at**     | DateTime          | 🔒 Readonly    | Card creation timestamp                                                                                                                                                                                                         |
-| **updated_at**     | DateTime          | 🔒 Readonly    | Last update timestamp                                                                                                                                                                                                           |
-| **deleted_at**     | DateTime          | 🔒 Readonly    | Soft delete timestamp (null = not deleted)                                                                                                                                                                                      |
-| **status**         | Object            | 🔒 Readonly    | Synchronization status with terminals                                                                                                                                                                                           |
+| Field              | Type              | Required       | Description                                                                                                                            |
+| ------------------ | ----------------- | -------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| **no**             | String            | ✅ Yes         | Card number (unique across system, max 32 characters)                                                                                  |
+| **name**           | String            | ✅ Yes         | Resident's full name (1-100 characters)                                                                                                |
+| **photo**          | File              | ❌ Optional    | Face photo file                                                                                                                        |
+| **objectGuid**     | String            | ⚠️ Conditional | Object GUID from BigApp - identifies the building/complex. **Required for bigapp host**                                                |
+| **entranceNumber** | String            | ❌ Optional    | Entrance number for access control (e.g., "1", "2"). Used as default zone if `zones` not provided                                      |
+| **zones**          | String[]          | ❌ Optional    | Zones for terminal synchronization (e.g., `["entrance1", "parking"]`). Defaults to `entranceNumber` if provided, otherwise `["all"]`   |
+| **group**          | String            | ❌ Optional    | Card group - format: `SITE_ID` (used as photo subfolder)                                                                               |
+| **begin_at**       | ISO 8601 DateTime | ❌ Optional    | Card activation date (default: current date/time)                                                                                      |
+| **end_at**         | ISO 8601 DateTime | ⚠️ Conditional | Card expiration date - **required for GUEST passType** (default: current date + 10 years)                                              |
+| **passType**       | String            | ❌ Optional    | Pass type: "permanent", "guest", "blocked". **GUEST cards get auto-generated 6-digit PIN**                                             |
+| **propertyGuid**   | String            | ❌ Optional    | Property GUID identifier (can be passed at top level or inside `meta`)                                                                 |
+| **guid**           | String            | ❌ Optional    | Resident/apartment GUID (can be passed at top level or inside `meta`)                                                                  |
+| **flatno**         | String            | ❌ Optional    | Flat/apartment number (can be passed at top level or inside `meta`)                                                                    |
+| **objectName**     | String            | ❌ Optional    | Object/complex name (can be passed at top level or inside `meta`)                                                                      |
+| **meta**           | JSON String       | ❌ Optional    | Metadata (JSON stringified). **Note:** Meta fields can also be passed as separate top-level fields instead of inside the `meta` object |
+| **uuid**           | String            | 🔒 Readonly    | Internal system identifier (16 characters) - auto-generated                                                                            |
+| **isOK**           | Boolean           | 🔒 Readonly    | `true` if card is synchronized with all terminals successfully                                                                         |
+| **isDisabled**     | Boolean           | ✏️ Editable    | Set to `true` to disable card access without deletion                                                                                  |
+| **created_at**     | DateTime          | 🔒 Readonly    | Card creation timestamp                                                                                                                |
+| **updated_at**     | DateTime          | 🔒 Readonly    | Last update timestamp                                                                                                                  |
+| **deleted_at**     | DateTime          | 🔒 Readonly    | Soft delete timestamp (null = not deleted)                                                                                             |
+| **status**         | Object            | 🔒 Readonly    | Synchronization status with terminals                                                                                                  |
 
 ### Photo Upload
 
@@ -669,16 +669,36 @@ curl -X POST https://api.elpass.uz/api/cards/sync-batch \
       "uuid": "95f0d969",
       "success": true,
       "status": {
-        "card": { "ver": 1, "080d6a50": { "ver": 1 }, "1bbf3604": { "ver": 1 }, "..." : "..." },
-        "photo": { "ver": 1, "080d6a50": { "ver": 1 }, "1bbf3604": { "ver": 1 }, "..." : "..." }
+        "card": {
+          "ver": 1,
+          "080d6a50": { "ver": 1 },
+          "1bbf3604": { "ver": 1 },
+          "...": "..."
+        },
+        "photo": {
+          "ver": 1,
+          "080d6a50": { "ver": 1 },
+          "1bbf3604": { "ver": 1 },
+          "...": "..."
+        }
       }
     },
     {
       "uuid": "674b9d07",
       "success": true,
       "status": {
-        "card": { "ver": 1, "080d6a50": { "ver": 1 }, "1bbf3604": { "ver": 1 }, "..." : "..." },
-        "photo": { "ver": 1, "080d6a50": { "ver": 1 }, "1bbf3604": { "ver": 1 }, "..." : "..." }
+        "card": {
+          "ver": 1,
+          "080d6a50": { "ver": 1 },
+          "1bbf3604": { "ver": 1 },
+          "...": "..."
+        },
+        "photo": {
+          "ver": 1,
+          "080d6a50": { "ver": 1 },
+          "1bbf3604": { "ver": 1 },
+          "...": "..."
+        }
       }
     }
   ]
@@ -726,16 +746,36 @@ curl -X POST https://api.elpass.uz/api/cards/sync-batch \
       "uuid": "674b9d07",
       "success": true,
       "status": {
-        "card": { "ver": 1, "080d6a50": { "ver": 1 }, "1bbf3604": { "ver": 1 }, "..." : "..." },
-        "photo": { "ver": 1, "080d6a50": { "ver": 1 }, "1bbf3604": { "ver": 1 }, "..." : "..." }
+        "card": {
+          "ver": 1,
+          "080d6a50": { "ver": 1 },
+          "1bbf3604": { "ver": 1 },
+          "...": "..."
+        },
+        "photo": {
+          "ver": 1,
+          "080d6a50": { "ver": 1 },
+          "1bbf3604": { "ver": 1 },
+          "...": "..."
+        }
       }
     },
     {
       "uuid": "95f0d969",
       "success": true,
       "status": {
-        "card": { "ver": 1, "080d6a50": { "ver": 1 }, "1bbf3604": { "ver": 1 }, "..." : "..." },
-        "photo": { "ver": 1, "080d6a50": { "ver": 1 }, "1bbf3604": { "ver": 1 }, "..." : "..." }
+        "card": {
+          "ver": 1,
+          "080d6a50": { "ver": 1 },
+          "1bbf3604": { "ver": 1 },
+          "...": "..."
+        },
+        "photo": {
+          "ver": 1,
+          "080d6a50": { "ver": 1 },
+          "1bbf3604": { "ver": 1 },
+          "...": "..."
+        }
       }
     }
   ]
@@ -797,6 +837,7 @@ curl -X POST https://api.elpass.uz/api/cards/sync-batch \
 ```
 
 **Optional overrides** (apply to all cards in batch):
+
 - `begin_at` — Override card validity start
 - `end_at` — Override card validity end
 
@@ -882,6 +923,46 @@ curl "https://api.elpass.kz/api/el_bookings?meta_->>guid=eq.706ccbdf-86f9-4b82-9
       "name": "cinema",
       "title": "Кинотеатр"
     }
+  }
+]
+```
+
+### 14. Get Available Booking Slots
+
+Returns hourly time slots (09:00–20:00) with availability for a given zone and date.
+
+**Endpoint**: `POST https://api.elpass.kz/api/rpc/get_available_slots`
+
+**Request:**
+
+```bash
+curl -s "https://api.elpass.kz/api/rpc/get_available_slots" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"p_object_guid":"62027a54-4f04-11e6-9a13-b4b52f5405e7","p_zone":"cinema","p_date":"2026-04-10"}'
+```
+
+| Parameter         | Required | Description                             |
+| ----------------- | -------- | --------------------------------------- |
+| **p_object_guid** | ✅ Yes   | Object GUID (`objectGuid` in zone meta) |
+| **p_zone**        | ✅ Yes   | Zone name (field `name` in `el_zones`)  |
+| **p_date**        | ✅ Yes   | Date in `YYYY-MM-DD` format             |
+
+**Response (200 OK):**
+
+```json
+[
+  {
+    "slot_start": "2026-04-10T09:00:00+05:00",
+    "slot_end": "2026-04-10T10:00:00+05:00",
+    "label": "09:00 - 10:00",
+    "available": false
+  },
+  {
+    "slot_start": "2026-04-10T10:00:00+05:00",
+    "slot_end": "2026-04-10T11:00:00+05:00",
+    "label": "10:00 - 11:00",
+    "available": true
   }
 ]
 ```
