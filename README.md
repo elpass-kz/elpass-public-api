@@ -850,11 +850,9 @@ curl "https://api.elpass.kz/api/el_bookings?meta_->>guid=eq.706ccbdf-86f9-4b82-9
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
-| Parameter        | Required | Description                                                                        |
-| ---------------- | -------- | ---------------------------------------------------------------------------------- |
-| **guid**         | ✅ Yes   | Resident GUID                                                                      |
-| **valid_period** | ❌ No    | Filter by period, e.g. `ov.[2026-04-06T00:00:00,2026-04-13T00:00:00)` |
-| **zone_id**      | ❌ No    | Filter by zone ID                                                                  |
+| Parameter | Required | Description   |
+| --------- | -------- | ------------- |
+| **guid**  | ✅ Yes   | Resident GUID |
 
 **Response (200 OK):**
 

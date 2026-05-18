@@ -857,16 +857,6 @@ paths:
           schema:
             type: string
           description: GUID резидента
-        - name: valid_period
-          in: query
-          schema:
-            type: string
-          description: "Фильтр по периоду (PostgREST range), например: ov.[2026-04-06T00:00:00,2026-04-13T00:00:00)"
-        - name: zone_id
-          in: query
-          schema:
-            type: integer
-          description: Фильтр по зоне
       responses:
         "200":
           description: Список бронирований
