@@ -802,7 +802,7 @@ paths:
                     photoError: "Photo not found on pic server"
                     skipped: false
 
-  /api/bookings/zones:
+  /api/el_zones:
     get:
       summary: Зоны бронирования объекта
       description: Возвращает список зон бронирования привязанных к указанному objectGuid
@@ -841,7 +841,7 @@ paths:
         "401":
           description: Токен отсутствует или недействителен
 
-  /api/bookings:
+  /api/el_bookings:
     get:
       summary: Бронирования по guid резидента
       description: Возвращает список бронирований привязанных к указанному guid резидента
@@ -890,7 +890,7 @@ paths:
         "401":
           description: Токен отсутствует или недействителен
 
-  /api/bookings/available-slots:
+  /api/rpc/get_available_slots:
     post:
       summary: Свободные слоты для бронирования
       description: Возвращает список часовых слотов (09:00–20:00) с признаком доступности для указанной зоны и даты
