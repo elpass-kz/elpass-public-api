@@ -24,24 +24,24 @@ This guide explains how to integrate your apartment management application with 
 
 - JWT authentication token (provided by Elpass support)
 - Your apartment service provider identifier (used for `group` naming)
-- Base API URL: `https://api.elpass.uz/api/cards`
+- Base API URL: `https://api.elpass.kz/api/cards`
 
 ### API Endpoint
 
 The API backend is built with **Express.js + TypeScript**, which provides a RESTful interface with automatic synchronization to physical access control terminals (Hikvision/Dahua).
 
-**Base Endpoint**: `https://api.elpass.uz/api/cards`
+**Base Endpoint**: `https://api.elpass.kz/api/cards`
 
 Example:
 
 ```
-POST   https://api.elpass.uz/api/cards                    # Create card
-GET    https://api.elpass.uz/api/cards                    # List cards
-PATCH  https://api.elpass.uz/api/cards/:uuid              # Update card
-DELETE https://api.elpass.uz/api/cards/:uuid              # Delete card
-POST   https://api.elpass.uz/api/cards/:uuid/sync         # Force re-sync card to terminals
-POST   https://api.elpass.uz/api/cards/sync-batch         # Batch sync / Booking operations
-POST   https://api.elpass.uz/api/cards/restore-terminal   # Restore terminal after factory reset
+POST   https://api.elpass.kz/api/cards                    # Create card
+GET    https://api.elpass.kz/api/cards                    # List cards
+PATCH  https://api.elpass.kz/api/cards/:uuid              # Update card
+DELETE https://api.elpass.kz/api/cards/:uuid              # Delete card
+POST   https://api.elpass.kz/api/cards/:uuid/sync         # Force re-sync card to terminals
+POST   https://api.elpass.kz/api/cards/sync-batch         # Batch sync / Booking operations
+POST   https://api.elpass.kz/api/cards/restore-terminal   # Restore terminal after factory reset
 ```
 
 ---
@@ -54,12 +54,12 @@ All API requests require a JWT Bearer token in the `Authorization` header. The J
 
 To get your JWT token, send a POST request to the login endpoint:
 
-**Endpoint**: `https://bigapp.elpass.uz/api/rpc/login`
+**Endpoint**: `https://bigapp.elpass.kz/api/rpc/login`
 
 **cURL**:
 
 ```bash
-curl -X POST https://bigapp.elpass.uz/api/rpc/login \
+curl -X POST https://bigapp.elpass.kz/api/rpc/login \
   -H "Content-Type: application/json" \
   -d '{
     "email": "bigapp@gmail.com",
@@ -89,7 +89,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **cURL**:
 
 ```bash
-curl -H "Authorization: Bearer YOUR_TOKEN" https://api.elpass.uz/api/cards
+curl -H "Authorization: Bearer YOUR_TOKEN" https://api.elpass.kz/api/cards
 ```
 
 **Python (requests)**:
@@ -101,7 +101,7 @@ headers = {
     "Authorization": f"Bearer {your_token}",
     "Content-Type": "application/json"
 }
-response = requests.get("https://api.elpass.uz/api/cards", headers=headers)
+response = requests.get("https://api.elpass.kz/api/cards", headers=headers)
 ```
 
 **Node.js (fetch)**:
@@ -111,7 +111,7 @@ const headers = {
   Authorization: `Bearer ${yourToken}`,
   "Content-Type": "application/json",
 };
-fetch("https://api.elpass.uz/api/cards", { headers });
+fetch("https://api.elpass.kz/api/cards", { headers });
 ```
 
 ---
@@ -259,7 +259,7 @@ Form fields:
 **Request:**
 
 ```bash
-curl -X POST https://api.elpass.uz/api/cards \
+curl -X POST https://api.elpass.kz/api/cards \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -F "name=Ivan Petrov" \
   -F "no=12345678" \
@@ -310,7 +310,7 @@ curl -X POST https://api.elpass.uz/api/cards \
 **Request:**
 
 ```bash
-curl -X POST https://api.elpass.uz/api/cards \
+curl -X POST https://api.elpass.kz/api/cards \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -F "name=Guest User" \
   -F "no=660e8400-e29b-41d4-a716-446655440001" \
@@ -355,49 +355,49 @@ curl -X POST https://api.elpass.uz/api/cards \
 **Get all cards:**
 
 ```bash
-curl -X GET "https://api.elpass.uz/api/cards" \
+curl -X GET "https://api.elpass.kz/api/cards" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 **Filter by name:**
 
 ```bash
-curl -X GET "https://api.elpass.uz/api/cards?name=Ivan" \
+curl -X GET "https://api.elpass.kz/api/cards?name=Ivan" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 **Filter by group:**
 
 ```bash
-curl -X GET "https://api.elpass.uz/api/cards?group=SITE001" \
+curl -X GET "https://api.elpass.kz/api/cards?group=SITE001" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 **Filter by propertyGuid:**
 
 ```bash
-curl -X GET "https://api.elpass.uz/api/cards?propertyGuid=prop-guid-123" \
+curl -X GET "https://api.elpass.kz/api/cards?propertyGuid=prop-guid-123" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 **Filter by creation date:**
 
 ```bash
-curl -X GET "https://api.elpass.uz/api/cards?created_at=2025-01-01" \
+curl -X GET "https://api.elpass.kz/api/cards?created_at=2025-01-01" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 **With pagination:**
 
 ```bash
-curl -X GET "https://api.elpass.uz/api/cards?page=1&size=20" \
+curl -X GET "https://api.elpass.kz/api/cards?page=1&size=20" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 **Include deleted cards:**
 
 ```bash
-curl -X GET "https://api.elpass.uz/api/cards?showDeletedCards=true" \
+curl -X GET "https://api.elpass.kz/api/cards?showDeletedCards=true" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
@@ -431,7 +431,7 @@ curl -X GET "https://api.elpass.uz/api/cards?showDeletedCards=true" \
 **Update name:**
 
 ```bash
-curl -X PATCH "https://api.elpass.uz/api/cards/a1b2c3d4e5f6g7h8" \
+curl -X PATCH "https://api.elpass.kz/api/cards/a1b2c3d4e5f6g7h8" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -d '{
@@ -442,7 +442,7 @@ curl -X PATCH "https://api.elpass.uz/api/cards/a1b2c3d4e5f6g7h8" \
 **Update photo:**
 
 ```bash
-curl -X PATCH "https://api.elpass.uz/api/cards/a1b2c3d4e5f6g7h8" \
+curl -X PATCH "https://api.elpass.kz/api/cards/a1b2c3d4e5f6g7h8" \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -F "photo=@/path/to/new-photo.jpg"
 ```
@@ -450,7 +450,7 @@ curl -X PATCH "https://api.elpass.uz/api/cards/a1b2c3d4e5f6g7h8" \
 **Extend validity:**
 
 ```bash
-curl -X PATCH "https://api.elpass.uz/api/cards/a1b2c3d4e5f6g7h8" \
+curl -X PATCH "https://api.elpass.kz/api/cards/a1b2c3d4e5f6g7h8" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -d '{
@@ -461,7 +461,7 @@ curl -X PATCH "https://api.elpass.uz/api/cards/a1b2c3d4e5f6g7h8" \
 **Disable card (temporary block):** When rent is unpaid or access needs suspension:
 
 ```bash
-curl -X PATCH "https://api.elpass.uz/api/cards/a1b2c3d4e5f6g7h8" \
+curl -X PATCH "https://api.elpass.kz/api/cards/a1b2c3d4e5f6g7h8" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -d '{
@@ -476,7 +476,7 @@ curl -X PATCH "https://api.elpass.uz/api/cards/a1b2c3d4e5f6g7h8" \
 **Request:**
 
 ```bash
-curl -X DELETE "https://api.elpass.uz/api/cards/a1b2c3d4e5f6g7h8" \
+curl -X DELETE "https://api.elpass.kz/api/cards/a1b2c3d4e5f6g7h8" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
@@ -510,7 +510,7 @@ Force re-synchronization of a specific card to all terminals. Useful when a card
 **Request:**
 
 ```bash
-curl -X POST "https://api.elpass.uz/api/cards/a1b2c3d4e5f6g7h8/sync" \
+curl -X POST "https://api.elpass.kz/api/cards/a1b2c3d4e5f6g7h8/sync" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
@@ -565,7 +565,7 @@ Restore all card data to a terminal after a factory reset or data loss. This re-
 **Request:**
 
 ```bash
-curl -X POST "https://api.elpass.uz/api/cards/restore-terminal" \
+curl -X POST "https://api.elpass.kz/api/cards/restore-terminal" \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -614,7 +614,7 @@ curl -X POST "https://api.elpass.uz/api/cards/restore-terminal" \
 
 ## Booking API
 
-The booking API uses the `sync-batch` endpoint (`POST https://api.elpass.uz/api/cards/sync-batch`). It allows residents of an apartment complex to book shared amenities (e.g. movie room, fitness center) for a specific time period. Access to the booked zone is automatically granted to the apartment for the duration of the booking and revoked when it ends.
+The booking API uses the `sync-batch` endpoint (`POST https://api.elpass.kz/api/cards/sync-batch`). It allows residents of an apartment complex to book shared amenities (e.g. movie room, fitness center) for a specific time period. Access to the booked zone is automatically granted to the apartment for the duration of the booking and revoked when it ends.
 
 **Max batch size**: 100 cards, processed 5 at a time.
 
@@ -633,7 +633,7 @@ Book a shared amenity zone for an apartment within a specific time window. Acces
 **Request:**
 
 ```bash
-curl -X POST https://api.elpass.uz/api/cards/sync-batch \
+curl -X POST https://api.elpass.kz/api/cards/sync-batch \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -714,7 +714,7 @@ Cancel an existing booking and revoke the apartment's access to the zone.
 **Request:**
 
 ```bash
-curl -X POST https://api.elpass.uz/api/cards/sync-batch \
+curl -X POST https://api.elpass.kz/api/cards/sync-batch \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -791,7 +791,7 @@ Sync specific cards by their UUIDs. Cards that are already synced (`isOK = true`
 **Request:**
 
 ```bash
-curl -X POST https://api.elpass.uz/api/cards/sync-batch \
+curl -X POST https://api.elpass.kz/api/cards/sync-batch \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -828,7 +828,7 @@ curl -X POST https://api.elpass.uz/api/cards/sync-batch \
 **Request:**
 
 ```bash
-curl -X POST https://api.elpass.uz/api/cards/sync-batch \
+curl -X POST https://api.elpass.kz/api/cards/sync-batch \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -966,6 +966,82 @@ curl -s "https://api.elpass.kz/api/rpc/get_available_slots" \
   }
 ]
 ```
+
+---
+
+### 15. Book with Slot Validation
+
+A dedicated booking endpoint that validates slot availability **before** creating the booking. Unlike `sync-batch` booking mode, this endpoint checks that the requested time slot is free and returns an error if it's already taken.
+
+**Endpoint**: `POST https://api.elpass.kz/api/cards/book-sync-batch`
+
+**Request:**
+
+```bash
+curl -X POST https://api.elpass.kz/api/cards/book-sync-batch \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "objectGuid": "62027a54-4f04-11e6-9a13-b4b52f5405e7",
+    "guid": "resident-guid-456",
+    "zone": "cinema",
+    "begin_at": "2026-05-26T13:00:00",
+    "end_at": "2026-05-26T14:00:00"
+  }'
+```
+
+| Field          | Type     | Required | Description                                  |
+| -------------- | -------- | -------- | -------------------------------------------- |
+| **objectGuid** | String   | ✅ Yes   | Residential complex (ЖК) identifier          |
+| **guid**       | String   | ✅ Yes   | Apartment identifier that receives access    |
+| **zone**       | String   | ✅ Yes   | Zone name to book (e.g. `cinema`, `fitness`) |
+| **begin_at**   | DateTime | ✅ Yes   | Booking start time (ISO 8601, no Z suffix)   |
+| **end_at**     | DateTime | ✅ Yes   | Booking end time (ISO 8601, no Z suffix)     |
+
+**Response (200 OK):**
+
+```json
+{
+  "success": true,
+  "summary": {
+    "total": 2,
+    "succeeded": 2,
+    "failed": 0,
+    "skipped": 0
+  },
+  "results": [
+    {
+      "uuid": "c863b370",
+      "success": true,
+      "status": {
+        "card": {
+          "ver": 1,
+          "1bbf3604": { "ok": "OK\r\n", "ver": 1 },
+          "...": "..."
+        },
+        "photo": {
+          "ver": 1,
+          "1bbf3604": { "ok": "OK\r\n", "ver": 1 },
+          "...": "..."
+        }
+      }
+    }
+  ]
+}
+```
+
+**Response when slot is taken (200 OK, success: false):**
+
+```json
+{
+  "success": false,
+  "error": "Slot 10:00 - 11:00 is not available",
+  "summary": { "total": 0, "succeeded": 0, "failed": 0, "skipped": 0 },
+  "results": []
+}
+```
+
+> **Tip**: Use `get_available_slots` first to find a free slot, then call `book-sync-batch` with the chosen slot times.
 
 ---
 
@@ -1270,7 +1346,7 @@ class ElpassCardManager:
 
 # Usage example
 manager = ElpassCardManager(
-    api_url="https://api.elpass.uz",
+    api_url="https://api.elpass.kz",
     token="YOUR_JWT_TOKEN"
 )
 

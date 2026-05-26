@@ -5,7 +5,7 @@ info:
   version: 1.0.0
 
 servers:
-  - url: https://api.elpass.uz
+  - url: https://api.elpass.kz
 
 security:
   - BearerAuth: []
@@ -18,7 +18,7 @@ paths:
       x-code-samples:
         - lang: curl
           source: |
-            curl https://api.elpass.uz/health
+            curl https://api.elpass.kz/health
       responses:
         "200":
           description: Сервис работает
@@ -46,7 +46,7 @@ paths:
       x-code-samples:
         - lang: curl
           source: |
-            curl https://api.elpass.uz/api/cards?page=1&size=20&name=Ivan \
+            curl https://api.elpass.kz/api/cards?page=1&size=20&name=Ivan \
               -H "Authorization: Bearer YOUR_TOKEN"
       parameters:
         - name: name
@@ -126,7 +126,7 @@ paths:
         - lang: curl
           label: Создание постоянного резидента
           source: |
-            curl -X POST https://api.elpass.uz/api/cards \
+            curl -X POST https://api.elpass.kz/api/cards \
               -H "Authorization: Bearer YOUR_TOKEN" \
               -F "name=Ivan Petrov" \
               -F "no=123456789012" \
@@ -139,7 +139,7 @@ paths:
         - lang: curl
           label: Создание гостевого пропуска
           source: |
-            curl -X POST https://api.elpass.uz/api/cards \
+            curl -X POST https://api.elpass.kz/api/cards \
               -H "Authorization: Bearer YOUR_TOKEN" \
               -F "name=Guest User" \
               -F "no=987654321098" \
@@ -294,20 +294,20 @@ paths:
         - lang: curl
           label: Обновление имени и фото
           source: |
-            curl -X PATCH https://api.elpass.uz/api/cards/a1b2c3d4-e5f6-7890-abcd-ef1234567890 \
+            curl -X PATCH https://api.elpass.kz/api/cards/a1b2c3d4-e5f6-7890-abcd-ef1234567890 \
               -H "Authorization: Bearer YOUR_TOKEN" \
               -F "name=Ivan Petrov Updated" \
               -F "photo=@/path/to/new-photo.jpg"
         - lang: curl
           label: Изменение зон доступа
           source: |
-            curl -X PATCH https://api.elpass.uz/api/cards/a1b2c3d4-e5f6-7890-abcd-ef1234567890 \
+            curl -X PATCH https://api.elpass.kz/api/cards/a1b2c3d4-e5f6-7890-abcd-ef1234567890 \
               -H "Authorization: Bearer YOUR_TOKEN" \
               -F "zones=[\"1\", \"2\", \"3\"]"
         - lang: curl
           label: Блокировка карты
           source: |
-            curl -X PATCH https://api.elpass.uz/api/cards/a1b2c3d4-e5f6-7890-abcd-ef1234567890 \
+            curl -X PATCH https://api.elpass.kz/api/cards/a1b2c3d4-e5f6-7890-abcd-ef1234567890 \
               -H "Authorization: Bearer YOUR_TOKEN" \
               -F "passType=blocked"
       parameters:
@@ -421,7 +421,7 @@ paths:
       x-code-samples:
         - lang: curl
           source: |
-            curl -X DELETE https://api.elpass.uz/api/cards/a1b2c3d4-e5f6-7890-abcd-ef1234567890 \
+            curl -X DELETE https://api.elpass.kz/api/cards/a1b2c3d4-e5f6-7890-abcd-ef1234567890 \
               -H "Authorization: Bearer YOUR_TOKEN"
       parameters:
         - name: uuid
@@ -469,7 +469,7 @@ paths:
       x-code-samples:
         - lang: curl
           source: |
-            curl -X POST https://api.elpass.uz/api/cards/a1b2c3d4-e5f6-7890-abcd-ef1234567890/sync \
+            curl -X POST https://api.elpass.kz/api/cards/a1b2c3d4-e5f6-7890-abcd-ef1234567890/sync \
               -H "Authorization: Bearer YOUR_TOKEN"
       parameters:
         - name: uuid
@@ -528,7 +528,7 @@ paths:
         - lang: curl
           label: По списку UUID
           source: |
-            curl -X POST https://api.elpass.uz/api/cards/sync-batch \
+            curl -X POST https://api.elpass.kz/api/cards/sync-batch \
               -H "Authorization: Bearer YOUR_TOKEN" \
               -H "Content-Type: application/json" \
               -d '{
@@ -539,7 +539,7 @@ paths:
         - lang: curl
           label: По группе
           source: |
-            curl -X POST https://api.elpass.uz/api/cards/sync-batch \
+            curl -X POST https://api.elpass.kz/api/cards/sync-batch \
               -H "Authorization: Bearer YOUR_TOKEN" \
               -H "Content-Type: application/json" \
               -d '{
@@ -548,7 +548,7 @@ paths:
         - lang: curl
           label: Booking mode — добавить зону
           source: |
-            curl -X POST https://api.elpass.uz/api/cards/sync-batch \
+            curl -X POST https://api.elpass.kz/api/cards/sync-batch \
               -H "Authorization: Bearer YOUR_TOKEN" \
               -H "Content-Type: application/json" \
               -d '{
@@ -561,7 +561,7 @@ paths:
         - lang: curl
           label: Booking mode — удалить зону
           source: |
-            curl -X POST https://api.elpass.uz/api/cards/sync-batch \
+            curl -X POST https://api.elpass.kz/api/cards/sync-batch \
               -H "Authorization: Bearer YOUR_TOKEN" \
               -H "Content-Type: application/json" \
               -d '{
@@ -707,7 +707,7 @@ paths:
       x-code-samples:
         - lang: curl
           source: |
-            curl -X POST https://api.elpass.uz/api/cards/restore-terminal \
+            curl -X POST https://api.elpass.kz/api/cards/restore-terminal \
               -H "Authorization: Bearer YOUR_TOKEN" \
               -H "Content-Type: application/json" \
               -d '{
@@ -801,6 +801,97 @@ paths:
                     photoSuccess: false
                     photoError: "Photo not found on pic server"
                     skipped: false
+
+  /api/cards/book-sync-batch:
+    post:
+      summary: Бронирование слота с проверкой доступности
+      description: |
+        Бронирует временной слот для резидента с предварительной проверкой доступности.
+        В отличие от `sync-batch`, этот эндпоинт проверяет, свободен ли слот, и возвращает ошибку если нет.
+      x-code-samples:
+        - lang: curl
+          source: |
+            curl -X POST https://api.elpass.kz/api/cards/book-sync-batch \
+              -H "Authorization: Bearer YOUR_TOKEN" \
+              -H "Content-Type: application/json" \
+              -d '{
+                "objectGuid": "62027a54-4f04-11e6-9a13-b4b52f5405e7",
+                "guid": "resident-guid-456",
+                "zone": "cinema",
+                "begin_at": "2026-05-26T13:00:00",
+                "end_at": "2026-05-26T14:00:00"
+              }'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [objectGuid, guid, zone, begin_at, end_at]
+              properties:
+                objectGuid:
+                  type: string
+                  description: GUID объекта (ЖК)
+                guid:
+                  type: string
+                  description: GUID резидента (квартиры)
+                zone:
+                  type: string
+                  description: Название зоны (e.g. cinema, fitness)
+                begin_at:
+                  type: string
+                  format: date-time
+                  description: Начало бронирования (ISO 8601, без суффикса Z)
+                end_at:
+                  type: string
+                  format: date-time
+                  description: Конец бронирования (ISO 8601, без суффикса Z)
+            example:
+              objectGuid: "62027a54-4f04-11e6-9a13-b4b52f5405e7"
+              guid: "resident-guid-456"
+              zone: "cinema"
+              begin_at: "2026-05-26T13:00:00"
+              end_at: "2026-05-26T14:00:00"
+      responses:
+        "200":
+          description: Результат бронирования
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SyncBatchResult"
+              examples:
+                success:
+                  summary: Слот свободен, бронирование создано
+                  value:
+                    success: true
+                    summary:
+                      total: 2
+                      succeeded: 2
+                      failed: 0
+                      skipped: 0
+                    results:
+                      - uuid: "c863b370"
+                        success: true
+                        status:
+                          card:
+                            ver: 1
+                            "1bbf3604": { ok: "OK\r\n", ver: 1 }
+                          photo:
+                            ver: 1
+                            "1bbf3604": { ok: "OK\r\n", ver: 1 }
+                slot_taken:
+                  summary: Слот занят
+                  value:
+                    success: false
+                    error: "Slot 10:00 - 11:00 is not available"
+                    summary:
+                      total: 0
+                      succeeded: 0
+                      failed: 0
+                      skipped: 0
+                    results: []
+        "401":
+          description: Токен отсутствует или недействителен
 
   /api/el_zones:
     get:
