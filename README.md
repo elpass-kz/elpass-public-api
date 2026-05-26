@@ -969,7 +969,62 @@ curl -s "https://api.elpass.kz/api/rpc/get_available_slots" \
 
 ---
 
-### 15. Book with Slot Validation
+### 15. Get Objects with Booking Zones
+
+Returns all residential complexes (`host=bigapp`) that have at least one booking zone. For each complex, returns an array of zone objects with details.
+
+**Endpoint**: `POST https://api.elpass.kz/api/rpc/get_objects_with_zones`
+
+**Request:**
+
+```bash
+curl -s "https://api.elpass.kz/api/rpc/get_objects_with_zones" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{}'
+```
+
+**Response (200 OK):**
+
+```json
+[
+  {
+    "object_guid": "62027a54-4f04-11e6-9a13-b4b52f5405e7",
+    "object_name": "Garden View - 3",
+    "zone_count": 3,
+    "zones": [
+      {"id": 2,  "name": "childroom", "title": "Детская комната", "capacity": null, "photo": "bigapp/1773395595135.jpg"},
+      {"id": 4,  "name": "cinema",    "title": "Кинотеатр",       "capacity": null, "photo": "bigapp/1773395626228.jpg"},
+      {"id": 10, "name": "fitness",   "title": "Фитнес",          "capacity": null, "photo": "bigapp/1778739037110.jpg"}
+    ]
+  },
+  {
+    "object_guid": "af585392-6272-11ee-a82a-001dd8b72708",
+    "object_name": "Hyde Park Shymkent",
+    "zone_count": 3,
+    "zones": [
+      {"id": 19, "name": "cinema",   "title": "Кинорум",         "capacity": null, "photo": null},
+      {"id": 21, "name": "library",  "title": "Библиотека",      "capacity": null, "photo": null},
+      {"id": 20, "name": "playroom", "title": "Игровая комната",  "capacity": null, "photo": null}
+    ]
+  }
+]
+```
+
+| Field | Type | Description |
+|---|---|---|
+| **object_guid** | String | GUID жилого комплекса |
+| **object_name** | String | Название жилого комплекса |
+| **zone_count** | Integer | Количество зон |
+| **zones[].id** | Integer | ID зоны |
+| **zones[].name** | String | Код зоны (e.g. `cinema`, `fitness`) |
+| **zones[].title** | String | Название зоны на русском |
+| **zones[].capacity** | Integer\|null | Вместимость (`null` = 1) |
+| **zones[].photo** | String\|null | Путь к фото зоны |
+
+---
+
+### 16. Book with Slot Validation
 
 A dedicated booking endpoint that validates slot availability **before** creating the booking. Unlike `sync-batch` booking mode, this endpoint checks that the requested time slot is free and returns an error if it's already taken.
 

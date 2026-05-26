@@ -981,6 +981,87 @@ paths:
         "401":
           description: Токен отсутствует или недействителен
 
+  /api/rpc/get_objects_with_zones:
+    post:
+      summary: ЖК со зонами бронирования
+      description: Возвращает список жилых комплексов, у которых есть хотя бы одна зона бронирования. Для каждого ЖК возвращает массив зон с деталями.
+      x-code-samples:
+        - lang: curl
+          source: |
+            curl -s "https://api.elpass.kz/api/rpc/get_objects_with_zones" \
+              -H "Authorization: Bearer YOUR_TOKEN" \
+              -H "Content-Type: application/json" \
+              -d '{}'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example: {}
+      responses:
+        "200":
+          description: Список ЖК с зонами
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    object_guid:
+                      type: string
+                      description: GUID жилого комплекса
+                    object_name:
+                      type: string
+                      description: Название жилого комплекса
+                    zone_count:
+                      type: integer
+                      description: Количество зон
+                    zones:
+                      type: array
+                      description: Список зон
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          name:
+                            type: string
+                            description: Код зоны (e.g. cinema, fitness)
+                          title:
+                            type: string
+                            description: Название зоны на русском
+                          capacity:
+                            type: integer
+                            nullable: true
+                            description: Вместимость (null = 1)
+                          photo:
+                            type: string
+                            nullable: true
+                            description: Путь к фото зоны
+              example:
+                - object_guid: "62027a54-4f04-11e6-9a13-b4b52f5405e7"
+                  object_name: "Garden View - 3"
+                  zone_count: 3
+                  zones:
+                    - id: 2
+                      name: "childroom"
+                      title: "Детская комната"
+                      capacity: null
+                      photo: "bigapp/1773395595135.jpg"
+                    - id: 4
+                      name: "cinema"
+                      title: "Кинотеатр"
+                      capacity: null
+                      photo: "bigapp/1773395626228.jpg"
+                    - id: 10
+                      name: "fitness"
+                      title: "Фитнес"
+                      capacity: null
+                      photo: "bigapp/1778739037110.jpg"
+        "401":
+          description: Токен отсутствует или недействителен
   /api/rpc/get_available_slots:
     post:
       summary: Свободные слоты для бронирования
