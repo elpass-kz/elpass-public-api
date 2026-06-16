@@ -285,6 +285,56 @@ paths:
           description: Внутренняя ошибка
 
   /api/cards/{uuid}:
+    get:
+      summary: Получение карты по ID
+      description: Получение данных одной карты по UUID
+      x-code-samples:
+        - lang: curl
+          source: |
+            curl https://api.elpass.uz/api/cards/a1b2c3d4-e5f6-7890-abcd-ef1234567890 \
+              -H "Authorization: Bearer YOUR_TOKEN"
+      parameters:
+        - name: uuid
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Данные карты
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  card:
+                    $ref: "#/components/schemas/Card"
+              example:
+                success: true
+                card:
+                  uuid: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                  no: "123456789012"
+                  name: "Ivan Petrov"
+                  photo: "SITE001/123456789012.jpg"
+                  isBlocked: false
+                  begin_at: "2026-01-01T00:00:00Z"
+                  end_at: "2036-01-01T00:00:00Z"
+                  isOK: true
+                  meta_:
+                    passType: "permanent"
+                    zones: ["1", "2"]
+                    entranceNumber: "1"
+                    objectGuid: "abc12345-def6-7890-ghij-klmnopqrstuv"
+        "404":
+          description: Карта не найдена
+          content:
+            application/json:
+              example:
+                success: false
+                error: "Card not found"
+
     patch:
       summary: Обновление карты
       description: |

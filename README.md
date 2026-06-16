@@ -37,6 +37,7 @@ Example:
 ```
 POST   https://api.elpass.uz/api/cards                    # Create card
 GET    https://api.elpass.uz/api/cards                    # List cards
+GET    https://api.elpass.uz/api/cards/:uuid              # Get card by ID
 PATCH  https://api.elpass.uz/api/cards/:uuid              # Update card
 DELETE https://api.elpass.uz/api/cards/:uuid              # Delete card
 POST   https://api.elpass.uz/api/cards/:uuid/sync         # Force re-sync card to terminals
@@ -426,7 +427,53 @@ curl -X GET "https://api.elpass.uz/api/cards?showDeletedCards=true" \
 }
 ```
 
-### 4. Update Card
+### 4. Get Card by UUID
+
+**Request:**
+
+```bash
+curl -X GET "https://api.elpass.uz/api/cards/a1b2c3d4e5f6g7h8" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+**Response (200 OK):**
+
+```json
+{
+  "success": true,
+  "card": {
+    "uuid": "a1b2c3d4e5f6g7h8",
+    "no": "12345678",
+    "name": "Ivan Petrov",
+    "group": "SITE001",
+    "photo": "SITE001/12345678.jpg",
+    "begin_at": "2025-01-15T00:00:00.000",
+    "end_at": "2026-01-15T23:59:59.000",
+    "isOK": true,
+    "isDisabled": false,
+    "created_at": "2025-01-10T14:30:00.000",
+    "updated_at": "2025-01-10T14:30:00.000",
+    "deleted_at": null,
+    "meta_": {
+      "passType": "permanent",
+      "zones": ["1", "2"],
+      "entranceNumber": "1",
+      "objectGuid": "abc12345-def6-7890-ghij-klmnopqrstuv"
+    }
+  }
+}
+```
+
+**Error Response (404 Not Found):**
+
+```json
+{
+  "success": false,
+  "error": "Card not found"
+}
+```
+
+### 5. Update Card
 
 **Update name:**
 
@@ -471,7 +518,7 @@ curl -X PATCH "https://api.elpass.uz/api/cards/a1b2c3d4e5f6g7h8" \
 
 > **Note**: To re-enable, send `"isDisabled": false`
 
-### 5. Delete Card
+### 6. Delete Card
 
 **Request:**
 
@@ -503,7 +550,7 @@ curl -X DELETE "https://api.elpass.uz/api/cards/a1b2c3d4e5f6g7h8" \
 
 > **Note**: This is a soft delete - card is marked as deleted but preserved for audit trail and synchronized deletion with terminals
 
-### 6. Force Sync Single Card
+### 7. Force Sync Single Card
 
 Force re-synchronization of a specific card to all terminals. Useful when a card's sync status is out of date or a terminal was temporarily offline.
 
@@ -558,7 +605,7 @@ curl -X POST "https://api.elpass.uz/api/cards/a1b2c3d4e5f6g7h8/sync" \
 
 > **Note**: This endpoint has a built-in lock mechanism — if another sync is already in progress for the same card, the request will wait and return the same result. If the card is already fully synced (`isOK = true`), the sync is skipped.
 
-### 7. Restore Terminal
+### 8. Restore Terminal
 
 Restore all card data to a terminal after a factory reset or data loss. This re-syncs all cards (and their photos) that should exist on the terminal based on zone configuration.
 
@@ -626,7 +673,7 @@ Fields:
 
 > **Note**: Booking mode bypasses normal `isOK` and `deleted_at` checks — it always processes the cards.
 
-### 8. Book a Zone
+### 9. Book a Zone
 
 Book a shared amenity zone for an apartment within a specific time window. Access is automatically synced to the terminals for the booking period.
 
@@ -687,7 +734,7 @@ curl -X POST https://api.elpass.uz/api/cards/sync-batch \
 
 > **Note:** The `status` object contains a `ver` (version) field and per-terminal sync status keyed by terminal ID. Each terminal entry shows its synced version number.
 
-### 9. Cancel a Zone Booking
+### 10. Cancel a Zone Booking
 
 Cancel an existing booking and revoke the apartment's access to the zone.
 
@@ -744,7 +791,7 @@ curl -X POST https://api.elpass.uz/api/cards/sync-batch \
 
 > **Important**: When the booking period ends, access is automatically revoked by the terminals (`end_at` is enforced). However, the card entry remains on the terminal. To avoid duplicate card accumulation on terminals over time, the booking system **must** send a `deleteZone` request after the booking expires to clean up the card from the terminal.
 
-### 10. Batch Sync by UUIDs
+### 11. Batch Sync by UUIDs
 
 Sync specific cards by their UUIDs. Cards that are already synced (`isOK = true`) or deleted are skipped.
 
@@ -783,7 +830,7 @@ curl -X POST https://api.elpass.uz/api/cards/sync-batch \
 }
 ```
 
-### 11. Batch Sync by Group
+### 12. Batch Sync by Group
 
 **Request:**
 
@@ -1031,6 +1078,21 @@ class ElpassCardManager:
             return response.json()
         else:
             raise Exception(f"Failed to create card: {response.json()}")
+
+    def get_card(self, card_uuid):
+        """Get a single card by UUID"""
+
+        headers = {"Authorization": self.headers["Authorization"]}
+
+        response = requests.get(
+            f"{self.api_url}/api/cards/{card_uuid}",
+            headers=headers
+        )
+
+        if response.status_code == 200:
+            return response.json()
+        else:
+            raise Exception(f"Failed to get card: {response.json()}")
 
     def list_cards(self, **filters):
         """Get cards with optional filters"""
