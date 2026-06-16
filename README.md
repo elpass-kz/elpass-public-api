@@ -12,7 +12,7 @@ This guide explains how to integrate your apartment management application with 
 2. [Authentication](#authentication)
 3. [Card Data Model](#card-data-model)
 4. [API Examples](#api-examples) (CRUD, Force Sync, Restore Terminal)
-5. [Booking API](#booking-api) (Booking, Batch Sync)
+5. [Booking API](#booking-api) (Booking, Batch Sync, Zones & Bookings Query, Available Slots)
 6. [Error Handling](#error-handling)
 7. [FAQ](#faq)
 
@@ -24,25 +24,25 @@ This guide explains how to integrate your apartment management application with 
 
 - JWT authentication token (provided by Elpass support)
 - Your apartment service provider identifier (used for `group` naming)
-- Base API URL: `https://api.elpass.uz/api/cards`
+- Base API URL: `https://api.elpass.kz/api/cards`
 
 ### API Endpoint
 
 The API backend is built with **Express.js + TypeScript**, which provides a RESTful interface with automatic synchronization to physical access control terminals (Hikvision/Dahua).
 
-**Base Endpoint**: `https://api.elpass.uz/api/cards`
+**Base Endpoint**: `https://api.elpass.kz/api/cards`
 
 Example:
 
 ```
-POST   https://api.elpass.uz/api/cards                    # Create card
-GET    https://api.elpass.uz/api/cards                    # List cards
-GET    https://api.elpass.uz/api/cards/:uuid              # Get card by ID
-PATCH  https://api.elpass.uz/api/cards/:uuid              # Update card
-DELETE https://api.elpass.uz/api/cards/:uuid              # Delete card
-POST   https://api.elpass.uz/api/cards/:uuid/sync         # Force re-sync card to terminals
-POST   https://api.elpass.uz/api/cards/sync-batch         # Batch sync / Booking operations
-POST   https://api.elpass.uz/api/cards/restore-terminal   # Restore terminal after factory reset
+POST   https://api.elpass.kz/api/cards                    # Create card
+GET    https://api.elpass.kz/api/cards                    # List cards
+GET    https://api.elpass.kz/api/cards/:uuid              # Get card by ID
+PATCH  https://api.elpass.kz/api/cards/:uuid              # Update card
+DELETE https://api.elpass.kz/api/cards/:uuid              # Delete card
+POST   https://api.elpass.kz/api/cards/:uuid/sync         # Force re-sync card to terminals
+POST   https://api.elpass.kz/api/cards/sync-batch         # Batch sync / Booking operations
+POST   https://api.elpass.kz/api/cards/restore-terminal   # Restore terminal after factory reset
 ```
 
 ---
@@ -55,12 +55,12 @@ All API requests require a JWT Bearer token in the `Authorization` header. The J
 
 To get your JWT token, send a POST request to the login endpoint:
 
-**Endpoint**: `https://bigapp.elpass.uz/api/rpc/login`
+**Endpoint**: `https://bigapp.elpass.kz/api/rpc/login`
 
 **cURL**:
 
 ```bash
-curl -X POST https://bigapp.elpass.uz/api/rpc/login \
+curl -X POST https://bigapp.elpass.kz/api/rpc/login \
   -H "Content-Type: application/json" \
   -d '{
     "email": "bigapp@gmail.com",
@@ -90,7 +90,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **cURL**:
 
 ```bash
-curl -H "Authorization: Bearer YOUR_TOKEN" https://api.elpass.uz/api/cards
+curl -H "Authorization: Bearer YOUR_TOKEN" https://api.elpass.kz/api/cards
 ```
 
 **Python (requests)**:
@@ -102,7 +102,7 @@ headers = {
     "Authorization": f"Bearer {your_token}",
     "Content-Type": "application/json"
 }
-response = requests.get("https://api.elpass.uz/api/cards", headers=headers)
+response = requests.get("https://api.elpass.kz/api/cards", headers=headers)
 ```
 
 **Node.js (fetch)**:
@@ -112,7 +112,7 @@ const headers = {
   Authorization: `Bearer ${yourToken}`,
   "Content-Type": "application/json",
 };
-fetch("https://api.elpass.uz/api/cards", { headers });
+fetch("https://api.elpass.kz/api/cards", { headers });
 ```
 
 ---
@@ -154,30 +154,30 @@ fetch("https://api.elpass.uz/api/cards", { headers });
 
 ### Field Descriptions
 
-| Field              | Type              | Required       | Description                                                                                                                                                                                                                     |
-| ------------------ | ----------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **no**             | String            | ✅ Yes         | Card number (unique across system, max 32 characters)                                                                                                                                                                           |
-| **name**           | String            | ✅ Yes         | Resident's full name (1-100 characters)                                                                                                                                                                                         |
-| **photo**          | File              | ❌ Optional    | Face photo file                                                                                                                                                                                                                 |
-| **objectGuid**     | String            | ⚠️ Conditional | Object GUID from BigApp - identifies the building/complex. **Required for bigapp host**                                                                                                                                         |
-| **entranceNumber** | String            | ❌ Optional    | Entrance number for access control (e.g., "1", "2"). Used as default zone if `zones` not provided                                                                                                                               |
-| **zones**          | String[]          | ❌ Optional    | Zones for terminal synchronization (e.g., `["entrance1", "parking"]`). Defaults to `entranceNumber` if provided, otherwise `["all"]`                                                                                            |
-| **group**          | String            | ❌ Optional    | Card group - format: `SITE_ID` (used as photo subfolder)                                                                                                                                                                        |
-| **begin_at**       | ISO 8601 DateTime | ❌ Optional    | Card activation date (default: current date/time)                                                                                                                                                                               |
-| **end_at**         | ISO 8601 DateTime | ⚠️ Conditional | Card expiration date - **required for GUEST passType** (default: current date + 10 years)                                                                                                                                       |
-| **passType**       | String            | ❌ Optional    | Pass type: "permanent", "guest", "blocked". **GUEST cards get auto-generated 6-digit PIN**                                                                                                                                      |
-| **propertyGuid**   | String            | ❌ Optional    | Property GUID identifier (can be passed at top level or inside `meta`)                                                                                                                                                          |
-| **guid**           | String            | ❌ Optional    | Resident/apartment GUID (can be passed at top level or inside `meta`)                                                                                                                                                           |
-| **flatno**         | String            | ❌ Optional    | Flat/apartment number (can be passed at top level or inside `meta`)                                                                                                                                                              |
-| **objectName**     | String            | ❌ Optional    | Object/complex name (can be passed at top level or inside `meta`)                                                                                                                                                                |
-| **meta**           | JSON String       | ❌ Optional    | Metadata (JSON stringified). **Note:** Meta fields can also be passed as separate top-level fields instead of inside the `meta` object                                                                                          |
-| **uuid**           | String            | 🔒 Readonly    | Internal system identifier (16 characters) - auto-generated                                                                                                                                                                     |
-| **isOK**           | Boolean           | 🔒 Readonly    | `true` if card is synchronized with all terminals successfully                                                                                                                                                                  |
-| **isDisabled**     | Boolean           | ✏️ Editable    | Set to `true` to disable card access without deletion                                                                                                                                                                           |
-| **created_at**     | DateTime          | 🔒 Readonly    | Card creation timestamp                                                                                                                                                                                                         |
-| **updated_at**     | DateTime          | 🔒 Readonly    | Last update timestamp                                                                                                                                                                                                           |
-| **deleted_at**     | DateTime          | 🔒 Readonly    | Soft delete timestamp (null = not deleted)                                                                                                                                                                                      |
-| **status**         | Object            | 🔒 Readonly    | Synchronization status with terminals                                                                                                                                                                                           |
+| Field              | Type              | Required       | Description                                                                                                                            |
+| ------------------ | ----------------- | -------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| **no**             | String            | ✅ Yes         | Card number (unique across system, max 32 characters)                                                                                  |
+| **name**           | String            | ✅ Yes         | Resident's full name (1-100 characters)                                                                                                |
+| **photo**          | File              | ❌ Optional    | Face photo file                                                                                                                        |
+| **objectGuid**     | String            | ⚠️ Conditional | Object GUID from BigApp - identifies the building/complex. **Required for bigapp host**                                                |
+| **entranceNumber** | String            | ❌ Optional    | Entrance number for access control (e.g., "1", "2"). Used as default zone if `zones` not provided                                      |
+| **zones**          | String[]          | ❌ Optional    | Zones for terminal synchronization (e.g., `["entrance1", "parking"]`). Defaults to `entranceNumber` if provided, otherwise `["all"]`   |
+| **group**          | String            | ❌ Optional    | Card group - format: `SITE_ID` (used as photo subfolder)                                                                               |
+| **begin_at**       | ISO 8601 DateTime | ❌ Optional    | Card activation date (default: current date/time)                                                                                      |
+| **end_at**         | ISO 8601 DateTime | ⚠️ Conditional | Card expiration date - **required for GUEST passType** (default: current date + 10 years)                                              |
+| **passType**       | String            | ❌ Optional    | Pass type: "permanent", "guest", "blocked". **GUEST cards get auto-generated 6-digit PIN**                                             |
+| **propertyGuid**   | String            | ❌ Optional    | Property GUID identifier (can be passed at top level or inside `meta`)                                                                 |
+| **guid**           | String            | ❌ Optional    | Resident/apartment GUID (can be passed at top level or inside `meta`)                                                                  |
+| **flatno**         | String            | ❌ Optional    | Flat/apartment number (can be passed at top level or inside `meta`)                                                                    |
+| **objectName**     | String            | ❌ Optional    | Object/complex name (can be passed at top level or inside `meta`)                                                                      |
+| **meta**           | JSON String       | ❌ Optional    | Metadata (JSON stringified). **Note:** Meta fields can also be passed as separate top-level fields instead of inside the `meta` object |
+| **uuid**           | String            | 🔒 Readonly    | Internal system identifier (16 characters) - auto-generated                                                                            |
+| **isOK**           | Boolean           | 🔒 Readonly    | `true` if card is synchronized with all terminals successfully                                                                         |
+| **isDisabled**     | Boolean           | ✏️ Editable    | Set to `true` to disable card access without deletion                                                                                  |
+| **created_at**     | DateTime          | 🔒 Readonly    | Card creation timestamp                                                                                                                |
+| **updated_at**     | DateTime          | 🔒 Readonly    | Last update timestamp                                                                                                                  |
+| **deleted_at**     | DateTime          | 🔒 Readonly    | Soft delete timestamp (null = not deleted)                                                                                             |
+| **status**         | Object            | 🔒 Readonly    | Synchronization status with terminals                                                                                                  |
 
 ### Photo Upload
 
@@ -260,7 +260,7 @@ Form fields:
 **Request:**
 
 ```bash
-curl -X POST https://api.elpass.uz/api/cards \
+curl -X POST https://api.elpass.kz/api/cards \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -F "name=Ivan Petrov" \
   -F "no=12345678" \
@@ -311,7 +311,7 @@ curl -X POST https://api.elpass.uz/api/cards \
 **Request:**
 
 ```bash
-curl -X POST https://api.elpass.uz/api/cards \
+curl -X POST https://api.elpass.kz/api/cards \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -F "name=Guest User" \
   -F "no=660e8400-e29b-41d4-a716-446655440001" \
@@ -356,49 +356,49 @@ curl -X POST https://api.elpass.uz/api/cards \
 **Get all cards:**
 
 ```bash
-curl -X GET "https://api.elpass.uz/api/cards" \
+curl -X GET "https://api.elpass.kz/api/cards" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 **Filter by name:**
 
 ```bash
-curl -X GET "https://api.elpass.uz/api/cards?name=Ivan" \
+curl -X GET "https://api.elpass.kz/api/cards?name=Ivan" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 **Filter by group:**
 
 ```bash
-curl -X GET "https://api.elpass.uz/api/cards?group=SITE001" \
+curl -X GET "https://api.elpass.kz/api/cards?group=SITE001" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 **Filter by propertyGuid:**
 
 ```bash
-curl -X GET "https://api.elpass.uz/api/cards?propertyGuid=prop-guid-123" \
+curl -X GET "https://api.elpass.kz/api/cards?propertyGuid=prop-guid-123" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 **Filter by creation date:**
 
 ```bash
-curl -X GET "https://api.elpass.uz/api/cards?created_at=2025-01-01" \
+curl -X GET "https://api.elpass.kz/api/cards?created_at=2025-01-01" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 **With pagination:**
 
 ```bash
-curl -X GET "https://api.elpass.uz/api/cards?page=1&size=20" \
+curl -X GET "https://api.elpass.kz/api/cards?page=1&size=20" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 **Include deleted cards:**
 
 ```bash
-curl -X GET "https://api.elpass.uz/api/cards?showDeletedCards=true" \
+curl -X GET "https://api.elpass.kz/api/cards?showDeletedCards=true" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
@@ -432,7 +432,7 @@ curl -X GET "https://api.elpass.uz/api/cards?showDeletedCards=true" \
 **Request:**
 
 ```bash
-curl -X GET "https://api.elpass.uz/api/cards/a1b2c3d4e5f6g7h8" \
+curl -X GET "https://api.elpass.kz/api/cards/a1b2c3d4e5f6g7h8" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
@@ -478,7 +478,7 @@ curl -X GET "https://api.elpass.uz/api/cards/a1b2c3d4e5f6g7h8" \
 **Update name:**
 
 ```bash
-curl -X PATCH "https://api.elpass.uz/api/cards/a1b2c3d4e5f6g7h8" \
+curl -X PATCH "https://api.elpass.kz/api/cards/a1b2c3d4e5f6g7h8" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -d '{
@@ -489,7 +489,7 @@ curl -X PATCH "https://api.elpass.uz/api/cards/a1b2c3d4e5f6g7h8" \
 **Update photo:**
 
 ```bash
-curl -X PATCH "https://api.elpass.uz/api/cards/a1b2c3d4e5f6g7h8" \
+curl -X PATCH "https://api.elpass.kz/api/cards/a1b2c3d4e5f6g7h8" \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -F "photo=@/path/to/new-photo.jpg"
 ```
@@ -497,7 +497,7 @@ curl -X PATCH "https://api.elpass.uz/api/cards/a1b2c3d4e5f6g7h8" \
 **Extend validity:**
 
 ```bash
-curl -X PATCH "https://api.elpass.uz/api/cards/a1b2c3d4e5f6g7h8" \
+curl -X PATCH "https://api.elpass.kz/api/cards/a1b2c3d4e5f6g7h8" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -d '{
@@ -508,7 +508,7 @@ curl -X PATCH "https://api.elpass.uz/api/cards/a1b2c3d4e5f6g7h8" \
 **Disable card (temporary block):** When rent is unpaid or access needs suspension:
 
 ```bash
-curl -X PATCH "https://api.elpass.uz/api/cards/a1b2c3d4e5f6g7h8" \
+curl -X PATCH "https://api.elpass.kz/api/cards/a1b2c3d4e5f6g7h8" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -d '{
@@ -523,7 +523,7 @@ curl -X PATCH "https://api.elpass.uz/api/cards/a1b2c3d4e5f6g7h8" \
 **Request:**
 
 ```bash
-curl -X DELETE "https://api.elpass.uz/api/cards/a1b2c3d4e5f6g7h8" \
+curl -X DELETE "https://api.elpass.kz/api/cards/a1b2c3d4e5f6g7h8" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
@@ -557,7 +557,7 @@ Force re-synchronization of a specific card to all terminals. Useful when a card
 **Request:**
 
 ```bash
-curl -X POST "https://api.elpass.uz/api/cards/a1b2c3d4e5f6g7h8/sync" \
+curl -X POST "https://api.elpass.kz/api/cards/a1b2c3d4e5f6g7h8/sync" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
@@ -612,7 +612,7 @@ Restore all card data to a terminal after a factory reset or data loss. This re-
 **Request:**
 
 ```bash
-curl -X POST "https://api.elpass.uz/api/cards/restore-terminal" \
+curl -X POST "https://api.elpass.kz/api/cards/restore-terminal" \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -661,7 +661,7 @@ curl -X POST "https://api.elpass.uz/api/cards/restore-terminal" \
 
 ## Booking API
 
-The booking API uses the `sync-batch` endpoint (`POST https://api.elpass.uz/api/cards/sync-batch`). It allows residents of an apartment complex to book shared amenities (e.g. movie room, fitness center) for a specific time period. Access to the booked zone is automatically granted to the apartment for the duration of the booking and revoked when it ends.
+The booking API uses the `sync-batch` endpoint (`POST https://api.elpass.kz/api/cards/sync-batch`). It allows residents of an apartment complex to book shared amenities (e.g. movie room, fitness center) for a specific time period. Access to the booked zone is automatically granted to the apartment for the duration of the booking and revoked when it ends.
 
 **Max batch size**: 100 cards, processed 5 at a time.
 
@@ -680,7 +680,7 @@ Book a shared amenity zone for an apartment within a specific time window. Acces
 **Request:**
 
 ```bash
-curl -X POST https://api.elpass.uz/api/cards/sync-batch \
+curl -X POST https://api.elpass.kz/api/cards/sync-batch \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -716,16 +716,36 @@ curl -X POST https://api.elpass.uz/api/cards/sync-batch \
       "uuid": "95f0d969",
       "success": true,
       "status": {
-        "card": { "ver": 1, "080d6a50": { "ver": 1 }, "1bbf3604": { "ver": 1 }, "..." : "..." },
-        "photo": { "ver": 1, "080d6a50": { "ver": 1 }, "1bbf3604": { "ver": 1 }, "..." : "..." }
+        "card": {
+          "ver": 1,
+          "080d6a50": { "ver": 1 },
+          "1bbf3604": { "ver": 1 },
+          "...": "..."
+        },
+        "photo": {
+          "ver": 1,
+          "080d6a50": { "ver": 1 },
+          "1bbf3604": { "ver": 1 },
+          "...": "..."
+        }
       }
     },
     {
       "uuid": "674b9d07",
       "success": true,
       "status": {
-        "card": { "ver": 1, "080d6a50": { "ver": 1 }, "1bbf3604": { "ver": 1 }, "..." : "..." },
-        "photo": { "ver": 1, "080d6a50": { "ver": 1 }, "1bbf3604": { "ver": 1 }, "..." : "..." }
+        "card": {
+          "ver": 1,
+          "080d6a50": { "ver": 1 },
+          "1bbf3604": { "ver": 1 },
+          "...": "..."
+        },
+        "photo": {
+          "ver": 1,
+          "080d6a50": { "ver": 1 },
+          "1bbf3604": { "ver": 1 },
+          "...": "..."
+        }
       }
     }
   ]
@@ -741,7 +761,7 @@ Cancel an existing booking and revoke the apartment's access to the zone.
 **Request:**
 
 ```bash
-curl -X POST https://api.elpass.uz/api/cards/sync-batch \
+curl -X POST https://api.elpass.kz/api/cards/sync-batch \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -773,16 +793,36 @@ curl -X POST https://api.elpass.uz/api/cards/sync-batch \
       "uuid": "674b9d07",
       "success": true,
       "status": {
-        "card": { "ver": 1, "080d6a50": { "ver": 1 }, "1bbf3604": { "ver": 1 }, "..." : "..." },
-        "photo": { "ver": 1, "080d6a50": { "ver": 1 }, "1bbf3604": { "ver": 1 }, "..." : "..." }
+        "card": {
+          "ver": 1,
+          "080d6a50": { "ver": 1 },
+          "1bbf3604": { "ver": 1 },
+          "...": "..."
+        },
+        "photo": {
+          "ver": 1,
+          "080d6a50": { "ver": 1 },
+          "1bbf3604": { "ver": 1 },
+          "...": "..."
+        }
       }
     },
     {
       "uuid": "95f0d969",
       "success": true,
       "status": {
-        "card": { "ver": 1, "080d6a50": { "ver": 1 }, "1bbf3604": { "ver": 1 }, "..." : "..." },
-        "photo": { "ver": 1, "080d6a50": { "ver": 1 }, "1bbf3604": { "ver": 1 }, "..." : "..." }
+        "card": {
+          "ver": 1,
+          "080d6a50": { "ver": 1 },
+          "1bbf3604": { "ver": 1 },
+          "...": "..."
+        },
+        "photo": {
+          "ver": 1,
+          "080d6a50": { "ver": 1 },
+          "1bbf3604": { "ver": 1 },
+          "...": "..."
+        }
       }
     }
   ]
@@ -798,7 +838,7 @@ Sync specific cards by their UUIDs. Cards that are already synced (`isOK = true`
 **Request:**
 
 ```bash
-curl -X POST https://api.elpass.uz/api/cards/sync-batch \
+curl -X POST https://api.elpass.kz/api/cards/sync-batch \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -835,7 +875,7 @@ curl -X POST https://api.elpass.uz/api/cards/sync-batch \
 **Request:**
 
 ```bash
-curl -X POST https://api.elpass.uz/api/cards/sync-batch \
+curl -X POST https://api.elpass.kz/api/cards/sync-batch \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -844,8 +884,266 @@ curl -X POST https://api.elpass.uz/api/cards/sync-batch \
 ```
 
 **Optional overrides** (apply to all cards in batch):
+
 - `begin_at` — Override card validity start
 - `end_at` — Override card validity end
+
+### 12. Get Booking Zones by Object
+
+Returns the list of bookable zones for a given residential complex (`objectGuid`). Results are filtered by the `host` claim in the JWT token via RLS.
+
+**Endpoint**: `GET https://api.elpass.kz/api/el_zones`
+
+**Request:**
+
+```bash
+curl "https://api.elpass.kz/api/el_zones?meta_->>objectGuid=eq.62027a54-4f04-11e6-9a13-b4b52f5405e7" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+| Parameter      | Required | Description                     |
+| -------------- | -------- | ------------------------------- |
+| **objectGuid** | ✅ Yes   | GUID of the residential complex |
+
+**Response (200 OK):**
+
+```json
+[
+  {
+    "id": 4,
+    "name": "cinema",
+    "title": "Кинотеатр",
+    "type": ["room"],
+    "capacity": null,
+    "photo": null,
+    "meta_": {
+      "objectGuid": "62027a54-4f04-11e6-9a13-b4b52f5405e7",
+      "objectName": "Garden View",
+      "description": null
+    }
+  }
+]
+```
+
+### 13. Get Bookings by Resident GUID
+
+Returns all bookings linked to a specific resident `guid`. Results are filtered by the `host` claim in the JWT token via RLS.
+
+**Endpoint**: `GET https://api.elpass.kz/api/el_bookings`
+
+**Request:**
+
+```bash
+curl "https://api.elpass.kz/api/el_bookings?meta_->>guid=eq.706ccbdf-86f9-4b82-9e34-b9d3cd2e7948" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+| Parameter | Required | Description   |
+| --------- | -------- | ------------- |
+| **guid**  | ✅ Yes   | Resident GUID |
+
+**Response (200 OK):**
+
+```json
+[
+  {
+    "id": 28,
+    "card_id": 116119,
+    "zone_id": 4,
+    "valid_period": "[\"2026-04-10 09:00:00+05\",\"2026-04-10 10:00:00+05\")",
+    "note": "",
+    "created_at": "2026-04-10T02:15:39.594816+05:00",
+    "disabled": false,
+    "host": "bigapp",
+    "meta_": {
+      "guid": "706ccbdf-86f9-4b82-9e34-b9d3cd2e7948",
+      "objectGuid": "62027a54-4f04-11e6-9a13-b4b52f5405e7",
+      "sync_status": "superseded"
+    },
+    "card": {
+      "id": 116119,
+      "no": "1773869825337",
+      "name": "Тест"
+    },
+    "zone": {
+      "id": 4,
+      "name": "cinema",
+      "title": "Кинотеатр"
+    }
+  }
+]
+```
+
+### 14. Get Available Booking Slots
+
+Returns hourly time slots (09:00–20:00) with availability for a given zone and date.
+
+**Endpoint**: `POST https://api.elpass.kz/api/rpc/get_available_slots`
+
+**Request:**
+
+```bash
+curl -s "https://api.elpass.kz/api/rpc/get_available_slots" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"p_object_guid":"62027a54-4f04-11e6-9a13-b4b52f5405e7","p_zone":"cinema","p_date":"2026-04-10"}'
+```
+
+| Parameter         | Required | Description                             |
+| ----------------- | -------- | --------------------------------------- |
+| **p_object_guid** | ✅ Yes   | Object GUID (`objectGuid` in zone meta) |
+| **p_zone**        | ✅ Yes   | Zone name (field `name` in `el_zones`)  |
+| **p_date**        | ✅ Yes   | Date in `YYYY-MM-DD` format             |
+
+**Response (200 OK):**
+
+```json
+[
+  {
+    "slot_start": "2026-04-10T09:00:00+05:00",
+    "slot_end": "2026-04-10T10:00:00+05:00",
+    "label": "09:00 - 10:00",
+    "available": false
+  },
+  {
+    "slot_start": "2026-04-10T10:00:00+05:00",
+    "slot_end": "2026-04-10T11:00:00+05:00",
+    "label": "10:00 - 11:00",
+    "available": true
+  }
+]
+```
+
+---
+
+### 15. Get Objects with Booking Zones
+
+Returns all residential complexes (`host=bigapp`) that have at least one booking zone. For each complex, returns an array of zone objects with details.
+
+**Endpoint**: `POST https://api.elpass.kz/api/rpc/get_objects_with_zones`
+
+**Request:**
+
+```bash
+curl -s "https://api.elpass.kz/api/rpc/get_objects_with_zones" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{}'
+```
+
+**Response (200 OK):**
+
+```json
+[
+  {
+    "object_guid": "62027a54-4f04-11e6-9a13-b4b52f5405e7",
+    "object_name": "Garden View - 3",
+    "zone_count": 3,
+    "zones": [
+      {"id": 2,  "name": "childroom", "title": "Детская комната", "capacity": null, "photo": "bigapp/1773395595135.jpg"},
+      {"id": 4,  "name": "cinema",    "title": "Кинотеатр",       "capacity": null, "photo": "bigapp/1773395626228.jpg"},
+      {"id": 10, "name": "fitness",   "title": "Фитнес",          "capacity": null, "photo": "bigapp/1778739037110.jpg"}
+    ]
+  },
+  {
+    "object_guid": "af585392-6272-11ee-a82a-001dd8b72708",
+    "object_name": "Hyde Park Shymkent",
+    "zone_count": 3,
+    "zones": [
+      {"id": 19, "name": "cinema",   "title": "Кинорум",         "capacity": null, "photo": null},
+      {"id": 21, "name": "library",  "title": "Библиотека",      "capacity": null, "photo": null},
+      {"id": 20, "name": "playroom", "title": "Игровая комната",  "capacity": null, "photo": null}
+    ]
+  }
+]
+```
+
+| Field | Type | Description |
+|---|---|---|
+| **object_guid** | String | GUID жилого комплекса |
+| **object_name** | String | Название жилого комплекса |
+| **zone_count** | Integer | Количество зон |
+| **zones[].id** | Integer | ID зоны |
+| **zones[].name** | String | Код зоны (e.g. `cinema`, `fitness`) |
+| **zones[].title** | String | Название зоны на русском |
+| **zones[].capacity** | Integer\|null | Вместимость (`null` = 1) |
+| **zones[].photo** | String\|null | Путь к фото зоны |
+
+---
+
+### 16. Book with Slot Validation
+
+A dedicated booking endpoint that validates slot availability **before** creating the booking. Unlike `sync-batch` booking mode, this endpoint checks that the requested time slot is free and returns an error if it's already taken.
+
+**Endpoint**: `POST https://api.elpass.kz/api/cards/book-sync-batch`
+
+**Request:**
+
+```bash
+curl -X POST https://api.elpass.kz/api/cards/book-sync-batch \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "objectGuid": "62027a54-4f04-11e6-9a13-b4b52f5405e7",
+    "guid": "resident-guid-456",
+    "zone": "cinema",
+    "begin_at": "2026-05-26T13:00:00",
+    "end_at": "2026-05-26T14:00:00"
+  }'
+```
+
+| Field          | Type     | Required | Description                                  |
+| -------------- | -------- | -------- | -------------------------------------------- |
+| **objectGuid** | String   | ✅ Yes   | Residential complex (ЖК) identifier          |
+| **guid**       | String   | ✅ Yes   | Apartment identifier that receives access    |
+| **zone**       | String   | ✅ Yes   | Zone name to book (e.g. `cinema`, `fitness`) |
+| **begin_at**   | DateTime | ✅ Yes   | Booking start time (ISO 8601, no Z suffix)   |
+| **end_at**     | DateTime | ✅ Yes   | Booking end time (ISO 8601, no Z suffix)     |
+
+**Response (200 OK):**
+
+```json
+{
+  "success": true,
+  "summary": {
+    "total": 2,
+    "succeeded": 2,
+    "failed": 0,
+    "skipped": 0
+  },
+  "results": [
+    {
+      "uuid": "c863b370",
+      "success": true,
+      "status": {
+        "card": {
+          "ver": 1,
+          "1bbf3604": { "ok": "OK\r\n", "ver": 1 },
+          "...": "..."
+        },
+        "photo": {
+          "ver": 1,
+          "1bbf3604": { "ok": "OK\r\n", "ver": 1 },
+          "...": "..."
+        }
+      }
+    }
+  ]
+}
+```
+
+**Response when slot is taken (200 OK, success: false):**
+
+```json
+{
+  "success": false,
+  "error": "Slot 10:00 - 11:00 is not available",
+  "summary": { "total": 0, "succeeded": 0, "failed": 0, "skipped": 0 },
+  "results": []
+}
+```
+
+> **Tip**: Use `get_available_slots` first to find a free slot, then call `book-sync-batch` with the chosen slot times.
 
 ---
 
@@ -1165,7 +1463,7 @@ class ElpassCardManager:
 
 # Usage example
 manager = ElpassCardManager(
-    api_url="https://api.elpass.uz",
+    api_url="https://api.elpass.kz",
     token="YOUR_JWT_TOKEN"
 )
 
@@ -1218,4 +1516,4 @@ print("✓ Card deleted")
 
 ---
 
-**Document Version**: 1.1 **Last Updated**: May 2026 **API Version**: Express.js REST API v1.0
+**Document Version**: 1.2 **Last Updated**: May 2026 **API Version**: Express.js REST API v1.0

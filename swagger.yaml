@@ -5,7 +5,7 @@ info:
   version: 1.0.0
 
 servers:
-  - url: https://api.elpass.uz
+  - url: https://api.elpass.kz
 
 security:
   - BearerAuth: []
@@ -18,7 +18,7 @@ paths:
       x-code-samples:
         - lang: curl
           source: |
-            curl https://api.elpass.uz/health
+            curl https://api.elpass.kz/health
       responses:
         "200":
           description: Сервис работает
@@ -46,7 +46,7 @@ paths:
       x-code-samples:
         - lang: curl
           source: |
-            curl https://api.elpass.uz/api/cards?page=1&size=20&name=Ivan \
+            curl https://api.elpass.kz/api/cards?page=1&size=20&name=Ivan \
               -H "Authorization: Bearer YOUR_TOKEN"
       parameters:
         - name: name
@@ -126,7 +126,7 @@ paths:
         - lang: curl
           label: Создание постоянного резидента
           source: |
-            curl -X POST https://api.elpass.uz/api/cards \
+            curl -X POST https://api.elpass.kz/api/cards \
               -H "Authorization: Bearer YOUR_TOKEN" \
               -F "name=Ivan Petrov" \
               -F "no=123456789012" \
@@ -139,7 +139,7 @@ paths:
         - lang: curl
           label: Создание гостевого пропуска
           source: |
-            curl -X POST https://api.elpass.uz/api/cards \
+            curl -X POST https://api.elpass.kz/api/cards \
               -H "Authorization: Bearer YOUR_TOKEN" \
               -F "name=Guest User" \
               -F "no=987654321098" \
@@ -291,7 +291,7 @@ paths:
       x-code-samples:
         - lang: curl
           source: |
-            curl https://api.elpass.uz/api/cards/a1b2c3d4-e5f6-7890-abcd-ef1234567890 \
+            curl https://api.elpass.kz/api/cards/a1b2c3d4-e5f6-7890-abcd-ef1234567890 \
               -H "Authorization: Bearer YOUR_TOKEN"
       parameters:
         - name: uuid
@@ -344,20 +344,20 @@ paths:
         - lang: curl
           label: Обновление имени и фото
           source: |
-            curl -X PATCH https://api.elpass.uz/api/cards/a1b2c3d4-e5f6-7890-abcd-ef1234567890 \
+            curl -X PATCH https://api.elpass.kz/api/cards/a1b2c3d4-e5f6-7890-abcd-ef1234567890 \
               -H "Authorization: Bearer YOUR_TOKEN" \
               -F "name=Ivan Petrov Updated" \
               -F "photo=@/path/to/new-photo.jpg"
         - lang: curl
           label: Изменение зон доступа
           source: |
-            curl -X PATCH https://api.elpass.uz/api/cards/a1b2c3d4-e5f6-7890-abcd-ef1234567890 \
+            curl -X PATCH https://api.elpass.kz/api/cards/a1b2c3d4-e5f6-7890-abcd-ef1234567890 \
               -H "Authorization: Bearer YOUR_TOKEN" \
               -F "zones=[\"1\", \"2\", \"3\"]"
         - lang: curl
           label: Блокировка карты
           source: |
-            curl -X PATCH https://api.elpass.uz/api/cards/a1b2c3d4-e5f6-7890-abcd-ef1234567890 \
+            curl -X PATCH https://api.elpass.kz/api/cards/a1b2c3d4-e5f6-7890-abcd-ef1234567890 \
               -H "Authorization: Bearer YOUR_TOKEN" \
               -F "passType=blocked"
       parameters:
@@ -471,7 +471,7 @@ paths:
       x-code-samples:
         - lang: curl
           source: |
-            curl -X DELETE https://api.elpass.uz/api/cards/a1b2c3d4-e5f6-7890-abcd-ef1234567890 \
+            curl -X DELETE https://api.elpass.kz/api/cards/a1b2c3d4-e5f6-7890-abcd-ef1234567890 \
               -H "Authorization: Bearer YOUR_TOKEN"
       parameters:
         - name: uuid
@@ -519,7 +519,7 @@ paths:
       x-code-samples:
         - lang: curl
           source: |
-            curl -X POST https://api.elpass.uz/api/cards/a1b2c3d4-e5f6-7890-abcd-ef1234567890/sync \
+            curl -X POST https://api.elpass.kz/api/cards/a1b2c3d4-e5f6-7890-abcd-ef1234567890/sync \
               -H "Authorization: Bearer YOUR_TOKEN"
       parameters:
         - name: uuid
@@ -578,7 +578,7 @@ paths:
         - lang: curl
           label: По списку UUID
           source: |
-            curl -X POST https://api.elpass.uz/api/cards/sync-batch \
+            curl -X POST https://api.elpass.kz/api/cards/sync-batch \
               -H "Authorization: Bearer YOUR_TOKEN" \
               -H "Content-Type: application/json" \
               -d '{
@@ -589,7 +589,7 @@ paths:
         - lang: curl
           label: По группе
           source: |
-            curl -X POST https://api.elpass.uz/api/cards/sync-batch \
+            curl -X POST https://api.elpass.kz/api/cards/sync-batch \
               -H "Authorization: Bearer YOUR_TOKEN" \
               -H "Content-Type: application/json" \
               -d '{
@@ -598,7 +598,7 @@ paths:
         - lang: curl
           label: Booking mode — добавить зону
           source: |
-            curl -X POST https://api.elpass.uz/api/cards/sync-batch \
+            curl -X POST https://api.elpass.kz/api/cards/sync-batch \
               -H "Authorization: Bearer YOUR_TOKEN" \
               -H "Content-Type: application/json" \
               -d '{
@@ -611,7 +611,7 @@ paths:
         - lang: curl
           label: Booking mode — удалить зону
           source: |
-            curl -X POST https://api.elpass.uz/api/cards/sync-batch \
+            curl -X POST https://api.elpass.kz/api/cards/sync-batch \
               -H "Authorization: Bearer YOUR_TOKEN" \
               -H "Content-Type: application/json" \
               -d '{
@@ -757,7 +757,7 @@ paths:
       x-code-samples:
         - lang: curl
           source: |
-            curl -X POST https://api.elpass.uz/api/cards/restore-terminal \
+            curl -X POST https://api.elpass.kz/api/cards/restore-terminal \
               -H "Authorization: Bearer YOUR_TOKEN" \
               -H "Content-Type: application/json" \
               -d '{
@@ -851,6 +851,320 @@ paths:
                     photoSuccess: false
                     photoError: "Photo not found on pic server"
                     skipped: false
+
+  /api/cards/book-sync-batch:
+    post:
+      summary: Бронирование слота с проверкой доступности
+      description: |
+        Бронирует временной слот для резидента с предварительной проверкой доступности.
+        В отличие от `sync-batch`, этот эндпоинт проверяет, свободен ли слот, и возвращает ошибку если нет.
+      x-code-samples:
+        - lang: curl
+          source: |
+            curl -X POST https://api.elpass.kz/api/cards/book-sync-batch \
+              -H "Authorization: Bearer YOUR_TOKEN" \
+              -H "Content-Type: application/json" \
+              -d '{
+                "objectGuid": "62027a54-4f04-11e6-9a13-b4b52f5405e7",
+                "guid": "resident-guid-456",
+                "zone": "cinema",
+                "begin_at": "2026-05-26T13:00:00",
+                "end_at": "2026-05-26T14:00:00"
+              }'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [objectGuid, guid, zone, begin_at, end_at]
+              properties:
+                objectGuid:
+                  type: string
+                  description: GUID объекта (ЖК)
+                guid:
+                  type: string
+                  description: GUID резидента (квартиры)
+                zone:
+                  type: string
+                  description: Название зоны (e.g. cinema, fitness)
+                begin_at:
+                  type: string
+                  format: date-time
+                  description: Начало бронирования (ISO 8601, без суффикса Z)
+                end_at:
+                  type: string
+                  format: date-time
+                  description: Конец бронирования (ISO 8601, без суффикса Z)
+            example:
+              objectGuid: "62027a54-4f04-11e6-9a13-b4b52f5405e7"
+              guid: "resident-guid-456"
+              zone: "cinema"
+              begin_at: "2026-05-26T13:00:00"
+              end_at: "2026-05-26T14:00:00"
+      responses:
+        "200":
+          description: Результат бронирования
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SyncBatchResult"
+              examples:
+                success:
+                  summary: Слот свободен, бронирование создано
+                  value:
+                    success: true
+                    summary:
+                      total: 2
+                      succeeded: 2
+                      failed: 0
+                      skipped: 0
+                    results:
+                      - uuid: "c863b370"
+                        success: true
+                        status:
+                          card:
+                            ver: 1
+                            "1bbf3604": { ok: "OK\r\n", ver: 1 }
+                          photo:
+                            ver: 1
+                            "1bbf3604": { ok: "OK\r\n", ver: 1 }
+                slot_taken:
+                  summary: Слот занят
+                  value:
+                    success: false
+                    error: "Slot 10:00 - 11:00 is not available"
+                    summary:
+                      total: 0
+                      succeeded: 0
+                      failed: 0
+                      skipped: 0
+                    results: []
+        "401":
+          description: Токен отсутствует или недействителен
+
+  /api/el_zones:
+    get:
+      summary: Зоны бронирования объекта
+      description: Возвращает список зон бронирования привязанных к указанному objectGuid
+      x-code-samples:
+        - lang: curl
+          source: |
+            curl "https://api.elpass.kz/api/el_zones?meta_->>objectGuid=eq.62027a54-4f04-11e6-9a13-b4b52f5405e7" \
+              -H "Authorization: Bearer YOUR_TOKEN"
+      parameters:
+        - name: objectGuid
+          in: query
+          required: true
+          schema:
+            type: string
+          description: GUID объекта недвижимости
+      responses:
+        "200":
+          description: Список зон
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BookingZone"
+              example:
+                - id: 4
+                  name: cinema
+                  title: Кинотеатр
+                  type: ["room"]
+                  capacity: null
+                  photo: null
+                  meta_:
+                    objectGuid: "62027a54-4f04-11e6-9a13-b4b52f5405e7"
+                    objectName: "Garden View"
+                    description: null
+        "401":
+          description: Токен отсутствует или недействителен
+
+  /api/el_bookings:
+    get:
+      summary: Бронирования по guid резидента
+      description: Возвращает список бронирований привязанных к указанному guid резидента
+      x-code-samples:
+        - lang: curl
+          source: |
+            curl "https://api.elpass.kz/api/el_bookings?meta_->>guid=eq.706ccbdf-86f9-4b82-9e34-b9d3cd2e7948" \
+              -H "Authorization: Bearer YOUR_TOKEN"
+      parameters:
+        - name: guid
+          in: query
+          required: true
+          schema:
+            type: string
+          description: GUID резидента
+      responses:
+        "200":
+          description: Список бронирований
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Booking"
+              example:
+                - id: 28
+                  card_id: 116119
+                  zone_id: 4
+                  valid_period: "[\"2026-04-10 09:00:00+05\",\"2026-04-10 10:00:00+05\")"
+                  note: ""
+                  created_at: "2026-04-10T02:15:39.594816+05:00"
+                  disabled: false
+                  host: bigapp
+                  meta_:
+                    guid: "706ccbdf-86f9-4b82-9e34-b9d3cd2e7948"
+                    objectGuid: "62027a54-4f04-11e6-9a13-b4b52f5405e7"
+                    sync_status: superseded
+                  card:
+                    id: 116119
+                    no: "1773869825337"
+                    name: Тест
+                  zone:
+                    id: 4
+                    name: cinema
+                    title: Кинотеатр
+        "401":
+          description: Токен отсутствует или недействителен
+
+  /api/rpc/get_objects_with_zones:
+    post:
+      summary: ЖК со зонами бронирования
+      description: Возвращает список жилых комплексов, у которых есть хотя бы одна зона бронирования. Для каждого ЖК возвращает массив зон с деталями.
+      x-code-samples:
+        - lang: curl
+          source: |
+            curl -s "https://api.elpass.kz/api/rpc/get_objects_with_zones" \
+              -H "Authorization: Bearer YOUR_TOKEN" \
+              -H "Content-Type: application/json" \
+              -d '{}'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example: {}
+      responses:
+        "200":
+          description: Список ЖК с зонами
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    object_guid:
+                      type: string
+                      description: GUID жилого комплекса
+                    object_name:
+                      type: string
+                      description: Название жилого комплекса
+                    zone_count:
+                      type: integer
+                      description: Количество зон
+                    zones:
+                      type: array
+                      description: Список зон
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          name:
+                            type: string
+                            description: Код зоны (e.g. cinema, fitness)
+                          title:
+                            type: string
+                            description: Название зоны на русском
+                          capacity:
+                            type: integer
+                            nullable: true
+                            description: Вместимость (null = 1)
+                          photo:
+                            type: string
+                            nullable: true
+                            description: Путь к фото зоны
+              example:
+                - object_guid: "62027a54-4f04-11e6-9a13-b4b52f5405e7"
+                  object_name: "Garden View - 3"
+                  zone_count: 3
+                  zones:
+                    - id: 2
+                      name: "childroom"
+                      title: "Детская комната"
+                      capacity: null
+                      photo: "bigapp/1773395595135.jpg"
+                    - id: 4
+                      name: "cinema"
+                      title: "Кинотеатр"
+                      capacity: null
+                      photo: "bigapp/1773395626228.jpg"
+                    - id: 10
+                      name: "fitness"
+                      title: "Фитнес"
+                      capacity: null
+                      photo: "bigapp/1778739037110.jpg"
+        "401":
+          description: Токен отсутствует или недействителен
+  /api/rpc/get_available_slots:
+    post:
+      summary: Свободные слоты для бронирования
+      description: Возвращает список часовых слотов (09:00–20:00) с признаком доступности для указанной зоны и даты
+      x-code-samples:
+        - lang: curl
+          source: |
+            curl -s "https://api.elpass.kz/api/rpc/get_available_slots" \
+              -H "Authorization: Bearer YOUR_TOKEN" \
+              -H "Content-Type: application/json" \
+              -d '{"p_object_guid":"62027a54-4f04-11e6-9a13-b4b52f5405e7","p_zone":"cinema","p_date":"2026-04-10"}'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [p_object_guid, p_zone, p_date]
+              properties:
+                p_object_guid:
+                  type: string
+                  description: GUID объекта недвижимости
+                p_zone:
+                  type: string
+                  description: Название зоны (поле name в el_zones)
+                p_date:
+                  type: string
+                  format: date
+                  description: Дата в формате YYYY-MM-DD
+            example:
+              p_object_guid: "62027a54-4f04-11e6-9a13-b4b52f5405e7"
+              p_zone: "cinema"
+              p_date: "2026-04-10"
+      responses:
+        "200":
+          description: Список слотов
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AvailableSlot"
+              example:
+                - slot_start: "2026-04-10T09:00:00+05:00"
+                  slot_end: "2026-04-10T10:00:00+05:00"
+                  label: "09:00 - 10:00"
+                  available: false
+                - slot_start: "2026-04-10T10:00:00+05:00"
+                  slot_end: "2026-04-10T11:00:00+05:00"
+                  label: "10:00 - 11:00"
+                  available: true
+        "401":
+          description: Токен отсутствует или недействителен
 
 components:
   securitySchemes:
@@ -956,6 +1270,105 @@ components:
               type: array
               items:
                 $ref: "#/components/schemas/OperationResult"
+
+    BookingZone:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        title:
+          type: string
+        type:
+          type: array
+          items:
+            type: string
+        capacity:
+          type: integer
+          nullable: true
+        photo:
+          type: string
+          nullable: true
+        meta_:
+          type: object
+          properties:
+            objectGuid:
+              type: string
+            objectName:
+              type: string
+            description:
+              type: string
+              nullable: true
+
+    Booking:
+      type: object
+      properties:
+        id:
+          type: integer
+        card_id:
+          type: integer
+        zone_id:
+          type: integer
+        valid_period:
+          type: string
+          description: "PostgreSQL tstzrange, например: [\"2026-04-10 09:00:00+05\",\"2026-04-10 10:00:00+05\")"
+        note:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        disabled:
+          type: boolean
+        host:
+          type: string
+        owner:
+          type: string
+        meta_:
+          type: object
+          properties:
+            guid:
+              type: string
+            objectGuid:
+              type: string
+            sync_status:
+              type: string
+            synced_at:
+              type: string
+              format: date-time
+        card:
+          type: object
+          properties:
+            id:
+              type: integer
+            no:
+              type: string
+            name:
+              type: string
+        zone:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+            title:
+              type: string
+
+    AvailableSlot:
+      type: object
+      properties:
+        slot_start:
+          type: string
+          format: date-time
+        slot_end:
+          type: string
+          format: date-time
+        label:
+          type: string
+          description: Читаемое время слота, например "09:00 - 10:00"
+        available:
+          type: boolean
 
     OperationResult:
       type: object
