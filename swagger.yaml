@@ -78,8 +78,12 @@ paths:
           in: query
           schema:
             type: string
-            enum: ["true"]
-          description: Включить удалённые карты
+            enum: ["true", "false"]
+          description: |
+            Фильтр по удалённым картам:
+            - `true` — только удалённые карты
+            - `false` — только активные карты
+            - не указан — все карты (по умолчанию)
         - name: propertyGuid
           in: query
           schema:
@@ -232,6 +236,9 @@ paths:
                     type: string
                   photoPath:
                     type: string
+                  photoUrl:
+                    type: string
+                    description: Полный URL к фото на pic-сервере
                   pin:
                     type: string
                     description: 6-значный PIN (только для passType=guest)
@@ -247,6 +254,7 @@ paths:
                     uuid: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
                     no: "123456789012"
                     photoPath: "SITE001/123456789012.jpg"
+                    photoUrl: "https://elpicserver.elpass.kz/SITE001/123456789012.jpg"
                     syncStatus:
                       card:
                         success: true
@@ -426,6 +434,9 @@ paths:
                     type: string
                   photoPath:
                     type: string
+                  photoUrl:
+                    type: string
+                    description: Полный URL к фото на pic-сервере
                   pin:
                     type: string
                     description: PIN (только если passType сменился на guest и PIN не был задан)
@@ -437,6 +448,7 @@ paths:
                 success: true
                 uuid: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
                 photoPath: "SITE001/123456789012.jpg"
+                photoUrl: "https://elpicserver.elpass.kz/SITE001/123456789012.jpg"
                 syncStatus:
                   card:
                     success: true

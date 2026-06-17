@@ -226,6 +226,7 @@ Form fields:
   "success": true,
   "uuid": "a1b2c3d4e5f6g7h8",
   "photoPath": "SITE001/12345678.jpg",
+  "photoUrl": "https://elpicserver.elpass.kz/SITE001/12345678.jpg",
   "syncStatus": {
     "card": {
       "success": true,
@@ -281,6 +282,7 @@ curl -X POST https://api.elpass.kz/api/cards \
   "success": true,
   "uuid": "a1b2c3d4e5f6g7h8",
   "photoPath": "SITE001/12345678.jpg",
+  "photoUrl": "https://elpicserver.elpass.kz/SITE001/12345678.jpg",
   "syncStatus": {
     "card": {
       "success": true,
@@ -395,12 +397,23 @@ curl -X GET "https://api.elpass.kz/api/cards?page=1&size=20" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
-**Include deleted cards:**
+**Filter by deletion status:**
 
 ```bash
+# Only deleted cards
 curl -X GET "https://api.elpass.kz/api/cards?showDeletedCards=true" \
   -H "Authorization: Bearer YOUR_TOKEN"
+
+# Only active cards
+curl -X GET "https://api.elpass.kz/api/cards?showDeletedCards=false" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+
+# All cards (default when parameter is omitted)
+curl -X GET "https://api.elpass.kz/api/cards" \
+  -H "Authorization: Bearer YOUR_TOKEN"
 ```
+
+> **Note**: `showDeletedCards=true` returns only deleted cards, `showDeletedCards=false` returns only active cards, and omitting the parameter returns all cards.
 
 **Response (200 OK):**
 
