@@ -1,1 +1,7 @@
-.claude/
+# Игнорируем всё, кроме документации (README + swagger)
+/*
+
+# Кроме этих файлов
+!.gitignore
+!README.md
+!swagger.yaml

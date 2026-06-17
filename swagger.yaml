@@ -1178,6 +1178,187 @@ paths:
         "401":
           description: Токен отсутствует или недействителен
 
+  /api/el_tdir_terminals:
+    get:
+      summary: Список терминалов СКУД
+      description: >
+        Возвращает терминалы. RLS фильтрует строки по host из токена.
+        Поддерживает фильтры PostgREST (eq, ilike, in, is и т.д.), сортировку и пагинацию.
+      x-code-samples:
+        - lang: curl
+          source: |
+            # все терминалы
+            curl "https://api.elpass.kz/api/el_tdir_terminals" \
+              -H "Authorization: Bearer YOUR_TOKEN"
+
+            # только Dahua, с пагинацией и общим числом строк
+            curl "https://api.elpass.kz/api/el_tdir_terminals?type=eq.D&order=name.asc&limit=10&offset=0" \
+              -H "Authorization: Bearer YOUR_TOKEN" \
+              -H "Prefer: count=exact"
+      parameters:
+        - name: id
+          in: query
+          required: false
+          schema:
+            type: string
+          description: "Фильтр по id, напр. eq.4068bdcb"
+        - name: type
+          in: query
+          required: false
+          schema:
+            type: string
+          description: "Фильтр по типу, напр. eq.D (Dahua) или eq.H (Hikvision)"
+        - name: disabled
+          in: query
+          required: false
+          schema:
+            type: string
+          description: "Фильтр, напр. eq.false / is.null"
+        - name: name
+          in: query
+          required: false
+          schema:
+            type: string
+          description: "Поиск, напр. ilike.*паркинг*"
+        - name: order
+          in: query
+          required: false
+          schema:
+            type: string
+          description: "Сортировка, напр. name.asc"
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: "Пагинация: размер страницы"
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: "Пагинация: смещение"
+        - name: Prefer
+          in: header
+          required: false
+          schema:
+            type: string
+            example: count=exact
+          description: "count=exact — вернуть общее число строк в заголовке Content-Range"
+      responses:
+        "200":
+          description: Список терминалов
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Terminal"
+              example:
+                - id: "047f1725"
+                  name: "5/вход"
+                  url: "https://0-7.wg.elpass.kz/api/main/in5"
+                  type: D
+                  disabled: false
+                  online: false
+                  host: bigapp
+                  meta_:
+                    zone: "5"
+                    direction: In
+                    terminal: "1"
+                    username: admin
+                    password: secret
+                    objectGuid: "1adff43b-19fb-11e7-97ac-b4b52f5405e7"
+                    objectName: "Capital Park Emotions - 1"
+                    api: dahasi
+        "401":
+          description: Токен отсутствует или недействителен
+    post:
+      summary: Создать терминал
+      description: Поля id и host генерируются автоматически — в теле не передавать.
+      x-code-samples:
+        - lang: curl
+          source: |
+            curl -X POST "https://api.elpass.kz/api/el_tdir_terminals" \
+              -H "Authorization: Bearer YOUR_TOKEN" \
+              -H "Content-Type: application/json" \
+              -H "Prefer: return=representation" \
+              -d '{"name":"5/вход","url":"https://0-7.wg.elpass.kz/api/main/in5","type":"D","disabled":false,"meta_":{"zone":"5","direction":"In","terminal":"1","username":"admin","password":"secret","api":"dahasi"}}'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TerminalInput"
+      responses:
+        "201":
+          description: Терминал создан (тело при Prefer return=representation)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Terminal"
+        "401":
+          description: Токен отсутствует или недействителен
+    patch:
+      summary: Обновить терминал
+      description: >
+        Частичное обновление — обновляются только переданные поля.
+        Поле meta_ обновляется целиком (передавать весь объект). Указывайте фильтр (напр. id=eq.).
+      x-code-samples:
+        - lang: curl
+          source: |
+            curl -X PATCH "https://api.elpass.kz/api/el_tdir_terminals?id=eq.047f1725" \
+              -H "Authorization: Bearer YOUR_TOKEN" \
+              -H "Content-Type: application/json" \
+              -H "Prefer: return=representation" \
+              -d '{"name":"новое имя","disabled":true}'
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
+          description: "Фильтр строк для обновления, напр. eq.047f1725"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TerminalInput"
+      responses:
+        "200":
+          description: Терминал обновлён
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Terminal"
+        "401":
+          description: Токен отсутствует или недействителен
+    delete:
+      summary: Удалить терминал
+      description: "ВНИМАНИЕ: без фильтра удалит все доступные строки. Всегда указывайте id=eq."
+      x-code-samples:
+        - lang: curl
+          source: |
+            curl -X DELETE "https://api.elpass.kz/api/el_tdir_terminals?id=eq.047f1725" \
+              -H "Authorization: Bearer YOUR_TOKEN"
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
+          description: "Фильтр строк для удаления, напр. eq.047f1725"
+      responses:
+        "204":
+          description: Терминал удалён
+        "401":
+          description: Токен отсутствует или недействителен
+
 components:
   securitySchemes:
     BearerAuth:
@@ -1394,3 +1575,73 @@ components:
           type: boolean
         error:
           type: string
+
+    TerminalMeta:
+      type: object
+      description: Дополнительные параметры терминала
+      properties:
+        zone:
+          type: string
+          description: Зона
+        direction:
+          type: string
+          description: Направление, In / Out
+        terminal:
+          type: string
+          description: Номер терминала
+        local_ip:
+          type: string
+        username:
+          type: string
+        password:
+          type: string
+        objectGuid:
+          type: string
+        objectName:
+          type: string
+        turnstile:
+          type: boolean
+          description: Турникет (2 двери)
+        api:
+          type: string
+          description: "Вариант API устройства, напр. dahasi (Dahua ASI, прошивка 3.x)"
+
+    Terminal:
+      type: object
+      properties:
+        id:
+          type: string
+          description: PK, генерируется автоматически
+        name:
+          type: string
+        url:
+          type: string
+        type:
+          type: string
+          description: D (Dahua) / H (Hikvision)
+        disabled:
+          type: boolean
+        online:
+          type: boolean
+        host:
+          type: string
+          description: Проставляется автоматически (gethostname)
+        meta_:
+          $ref: "#/components/schemas/TerminalMeta"
+
+    TerminalInput:
+      type: object
+      required: [name, url]
+      description: Тело для создания/обновления. Поля id и host передавать не нужно.
+      properties:
+        name:
+          type: string
+        url:
+          type: string
+        type:
+          type: string
+          description: D (Dahua) / H (Hikvision), по умолчанию D
+        disabled:
+          type: boolean
+        meta_:
+          $ref: "#/components/schemas/TerminalMeta"

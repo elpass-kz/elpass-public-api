@@ -13,8 +13,9 @@ This guide explains how to integrate your apartment management application with 
 3. [Card Data Model](#card-data-model)
 4. [API Examples](#api-examples) (CRUD, Force Sync, Restore Terminal)
 5. [Booking API](#booking-api) (Booking, Batch Sync, Zones & Bookings Query, Available Slots)
-6. [Error Handling](#error-handling)
-7. [FAQ](#faq)
+6. [Terminals API](#terminals-api) (CRUD, Filters, Pagination)
+7. [Error Handling](#error-handling)
+8. [FAQ](#faq)
 
 ---
 
@@ -1157,6 +1158,154 @@ curl -X POST https://api.elpass.kz/api/cards/book-sync-batch \
 ```
 
 > **Tip**: Use `get_available_slots` first to find a free slot, then call `book-sync-batch` with the chosen slot times.
+
+---
+
+## Terminals API
+
+Direct CRUD over the `el_tdir_terminals` table via PostgREST. Row-Level Security automatically filters rows by the `host` claim from your token. The `id` and `host` fields are generated automatically — **do not** include them in request bodies.
+
+**Base**: `https://api.elpass.kz/api/el_tdir_terminals`
+
+### Terminal Model
+
+| Field        | Type    | Description                                              |
+| ------------ | ------- | ------------------------------------------------------- |
+| **id**       | String  | Primary key, auto-generated                             |
+| **name**     | String  | Terminal name (required)                                |
+| **url**      | String  | Terminal proxy URL (required)                           |
+| **type**     | String  | `D` (Dahua) / `H` (Hikvision), defaults to `D`          |
+| **disabled** | Boolean | Whether the terminal is disabled                        |
+| **online**   | Boolean | Online status                                           |
+| **meta\_**   | Object  | Extra params (see below)                                |
+| **host**     | String  | Auto-filled (`gethostname()`)                           |
+
+**meta\_ fields:** `zone`, `direction` (In/Out), `terminal`, `local_ip`, `username`, `password`, `objectGuid`, `objectName`, `turnstile` (turnstile / 2 doors), `api` (device API variant, e.g. `dahasi` for Dahua ASI firmware 3.x).
+
+### 17. List Terminals
+
+**Endpoint**: `GET https://api.elpass.kz/api/el_tdir_terminals`
+
+```bash
+# all terminals
+curl "https://api.elpass.kz/api/el_tdir_terminals" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+**Filters** (PostgREST operators):
+
+```bash
+curl "https://api.elpass.kz/api/el_tdir_terminals?id=eq.047f1725"      # by id
+curl "https://api.elpass.kz/api/el_tdir_terminals?type=eq.D"           # only Dahua
+curl "https://api.elpass.kz/api/el_tdir_terminals?disabled=eq.false"   # active only
+curl "https://api.elpass.kz/api/el_tdir_terminals?name=ilike.*паркинг*" # by name
+curl "https://api.elpass.kz/api/el_tdir_terminals?meta_->>zone=eq.5"    # by meta_ field
+curl "https://api.elpass.kz/api/el_tdir_terminals?order=name.asc"       # sorting
+curl "https://api.elpass.kz/api/el_tdir_terminals?select=id,name,url"   # select fields
+```
+
+| Operator   | SQL    | Example                      |
+| ---------- | ------ | ---------------------------- |
+| `eq`       | `=`    | `id=eq.123`                  |
+| `neq`      | `<>`   | `type=neq.H`                 |
+| `gt/gte`   | `>` `>=` | `created_at=gte.2026-01-01` |
+| `lt/lte`   | `<` `<=` | `created_at=lte.2026-12-31` |
+| `like`     | `LIKE` | `name=like.*park*`           |
+| `ilike`    | `ILIKE`| `name=ilike.*PARK*`          |
+| `in`       | `IN`   | `type=in.(D,H)`              |
+| `is`       | `IS`   | `disabled=is.null`           |
+
+**Pagination:**
+
+```bash
+# limit/offset
+curl "https://api.elpass.kz/api/el_tdir_terminals?order=name.asc&limit=10&offset=0" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+
+# total count — add Prefer: count=exact, read the Content-Range response header
+curl -i "https://api.elpass.kz/api/el_tdir_terminals?limit=10&offset=0" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Prefer: count=exact"
+# Response header: Content-Range: 0-9/57   (57 = total rows)
+```
+
+**Response (200 OK):**
+
+```json
+[
+  {
+    "id": "047f1725",
+    "name": "5/вход",
+    "url": "https://0-7.wg.elpass.kz/api/main/in5",
+    "type": "D",
+    "disabled": false,
+    "online": false,
+    "host": "bigapp",
+    "meta_": {
+      "zone": "5",
+      "direction": "In",
+      "terminal": "1",
+      "username": "admin",
+      "password": "secret",
+      "objectGuid": "1adff43b-19fb-11e7-97ac-b4b52f5405e7",
+      "objectName": "Capital Park Emotions - 1",
+      "api": "dahasi"
+    }
+  }
+]
+```
+
+### 18. Create Terminal
+
+**Endpoint**: `POST https://api.elpass.kz/api/el_tdir_terminals`
+
+```bash
+curl -X POST "https://api.elpass.kz/api/el_tdir_terminals" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -H "Prefer: return=representation" \
+  -d '{
+    "name": "5/вход",
+    "url": "https://0-7.wg.elpass.kz/api/main/in5",
+    "type": "D",
+    "disabled": false,
+    "meta_": {
+      "zone": "5",
+      "direction": "In",
+      "terminal": "1",
+      "username": "admin",
+      "password": "secret",
+      "api": "dahasi"
+    }
+  }'
+```
+
+> `Prefer: return=representation` returns the created row in the response. Omit `id` and `host` — they are generated automatically.
+
+### 19. Update Terminal
+
+**Endpoint**: `PATCH https://api.elpass.kz/api/el_tdir_terminals?id=eq.{id}`
+
+Partial update — only the passed fields are changed. The `meta_` field is replaced **as a whole** (send the full object).
+
+```bash
+curl -X PATCH "https://api.elpass.kz/api/el_tdir_terminals?id=eq.047f1725" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -H "Prefer: return=representation" \
+  -d '{"name": "новое имя", "disabled": true}'
+```
+
+### 20. Delete Terminal
+
+**Endpoint**: `DELETE https://api.elpass.kz/api/el_tdir_terminals?id=eq.{id}`
+
+```bash
+curl -X DELETE "https://api.elpass.kz/api/el_tdir_terminals?id=eq.047f1725" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+> ⚠️ **Warning**: Without a filter the request deletes **all** accessible rows. Always include `?id=eq.`
 
 ---
 
