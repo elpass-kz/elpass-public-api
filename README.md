@@ -1162,42 +1162,147 @@ curl -X POST https://api.elpass.kz/api/cards/book-sync-batch \
 
 ## Error Handling
 
-### Common Error Responses
+### Error Response Format
 
-#### 400 Bad Request - Invalid group format
-
-```json
-{
-  "message": "Invalid group format",
-  "code": "400",
-  "details": "Expected format: SITE_ID"
-}
-```
-
-**Fix**: Ensure group follows pattern: `^[a-zA-Z0-9_-]+\+[a-zA-Z0-9_-]+$`
-
-#### 409 Conflict - Duplicate card number
+All API errors include a `messageCode` field for programmatic error handling:
 
 ```json
 {
-  "message": "Duplicate key value violates unique constraint \"uk_no\"",
-  "code": "23505",
-  "details": "Key (no)=(12345678) already exists."
+  "success": false,
+  "error": "Human-readable error description",
+  "messageCode": "ERROR_CODE"
 }
 ```
 
-**Fix**: Ensure `no` is unique in your system
+### Message Codes Reference
 
-#### 401 Unauthorized - Invalid token
+#### Authentication Errors
+
+| messageCode | HTTP Status | Description |
+|---|---|---|
+| `AUTH_REQUIRED` | 401 | Authorization header is missing |
+| `TOKEN_REQUIRED` | 401 | JWT token is empty |
+| `TOKEN_EXPIRED` | 401 | JWT token has expired |
+| `TOKEN_INVALID` | 401 | JWT token is malformed or invalid |
+
+#### File Upload Errors
+
+| messageCode | HTTP Status | Description |
+|---|---|---|
+| `INVALID_FILE_TYPE` | 400 | Uploaded file is not an image |
+| `FILE_TOO_LARGE` | 400 | File exceeds 10MB limit |
+| `PHOTO_UPLOAD_FAILED` | 500 | Photo upload to server failed |
+
+#### Card Create Errors
+
+| messageCode | HTTP Status | Description |
+|---|---|---|
+| `MISSING_REQUIRED_FIELDS` | 400 | Missing `name` or `no` |
+| `CARD_NUMBER_TOO_LONG` | 400 | Card number exceeds 32 characters |
+| `MISSING_OBJECT_GUID` | 400 | `objectGuid` required for bigapp host |
+| `MISSING_END_AT_FOR_GUEST` | 400 | `end_at` required for GUEST passType |
+| `INVALID_META_JSON` | 400 | Invalid JSON in `meta` field |
+| `DUPLICATE_CARD` | 400 | Card with this number already exists |
+| `CARD_SYNC_FAILED` | 400 | Card sync with terminals failed (e.g. no terminals found) |
+
+#### Card Update Errors
+
+| messageCode | HTTP Status | Description |
+|---|---|---|
+| `CARD_NOT_FOUND` | 404 | Card with specified UUID not found |
+| `CARD_NUMBER_IMMUTABLE` | 400 | Cannot change card number after creation |
+| `INVALID_META_JSON` | 400 | Invalid JSON in `meta` field |
+| `CARD_UPDATE_FAILED` | 404 | Failed to update card in database |
+| `CARD_SYNC_FAILED` | 400 | Card sync with terminals failed |
+
+#### Card Delete Errors
+
+| messageCode | HTTP Status | Description |
+|---|---|---|
+| `CARD_NOT_FOUND` | 404 | Card with specified UUID not found |
+| `CARD_DELETE_FAILED` | 404 | Failed to delete card from database |
+
+#### Card Get Errors
+
+| messageCode | HTTP Status | Description |
+|---|---|---|
+| `CARD_NOT_FOUND` | 404 | Card with specified UUID not found |
+
+#### Sync Errors
+
+| messageCode | HTTP Status | Description |
+|---|---|---|
+| `SYNC_PARTIAL_FAILURE` | 400 | Card/photo sync failed on one or more terminals (e.g. timeout) |
+
+#### System Errors
+
+| messageCode | HTTP Status | Description |
+|---|---|---|
+| `INTERNAL_ERROR` | 500 | Internal server error |
+
+### Example Error Responses
+
+#### 400 Bad Request - Missing required fields
 
 ```json
 {
-  "message": "JWT invalid",
-  "code": "401"
+  "success": false,
+  "error": "Missing required fields: name, no",
+  "messageCode": "MISSING_REQUIRED_FIELDS"
 }
 ```
 
-**Fix**: Check token is valid and hasn't expired; request new token from Elpass support
+#### 400 Bad Request - Duplicate card number
+
+```json
+{
+  "success": false,
+  "error": "Duplicate key value violates unique constraint \"uk_no\"",
+  "messageCode": "DUPLICATE_CARD"
+}
+```
+
+#### 404 Not Found - Card not found
+
+```json
+{
+  "success": false,
+  "error": "Card with uuid=abc123 not found",
+  "messageCode": "CARD_NOT_FOUND"
+}
+```
+
+#### 400 Bad Request - Immutable card number
+
+```json
+{
+  "success": false,
+  "error": "Cannot change card number (no). Card number is immutable.",
+  "messageCode": "CARD_NUMBER_IMMUTABLE"
+}
+```
+
+#### 401 Unauthorized - Token expired
+
+```json
+{
+  "success": false,
+  "message": "JWT token has expired",
+  "messageCode": "TOKEN_EXPIRED"
+}
+```
+
+**Fix**: Request a new token via the login endpoint
+
+#### 400 Bad Request - Invalid file type
+
+```json
+{
+  "success": false,
+  "message": "Only image files are allowed",
+  "messageCode": "INVALID_FILE_TYPE"
+}
+```
 
 #### 422 Unprocessable Entity - Invalid data
 
